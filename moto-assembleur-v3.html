@@ -5956,11 +5956,15 @@
   .btn-select:hover, .btn-select.actif { border-color: var(--cyan); color: var(--cyan); background: rgba(0,217,255,.08); }
   .ligne-addon.selectionnee { outline: 1px solid var(--cyan); background: rgba(0,217,255,.06); }
   #gizmoHud {
-    position: absolute; z-index: 12; transform: translate(-50%, -50%);
-    display: none; flex-direction: column; align-items: center; gap: 6px;
-    pointer-events: none;
+    position: absolute; top: 12px; left: 12px; z-index: 12;
+    display: none; flex-direction: column; align-items: stretch; gap: 8px;
+    pointer-events: none; max-width: calc(100% - 24px);
   }
   #gizmoHud.visible { display: flex; }
+  .gizmo-titre {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--cyan-dim); padding: 0 2px;
+  }
   .gizmo-cross {
     display: grid; grid-template-columns: repeat(3, 34px); grid-template-rows: repeat(3, 34px);
     gap: 2px; pointer-events: auto; padding: 4px; border-radius: 10px;
@@ -5979,6 +5983,14 @@
   .gizmo-actions { display: flex; gap: 6px; pointer-events: auto; }
   .gizmo-actions .gizmo-btn { width: auto; min-width: 38px; padding: 0 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; }
   .gizmo-actions .gizmo-btn.actif { box-shadow: 0 0 0 1px var(--cyan); }
+  .vue-controles {
+    display: grid; grid-template-columns: repeat(3, 34px); grid-template-rows: repeat(3, 34px);
+    gap: 2px; pointer-events: auto; padding: 4px; border-radius: 10px;
+    background: rgba(10,12,16,.78); border: 1px solid var(--line);
+    box-shadow: 0 4px 20px rgba(0,0,0,.45);
+  }
+  .vue-controles .vide { pointer-events: none; }
+  .vue-controles .gizmo-btn { font-size: 16px; font-weight: 700; }
   #editionPiece .edition-controles { display: none; }
   #editionPiece.selection-active .edition-controles { display: block; }
   #editionPiece.selection-active .edition-vide { display: none; }
@@ -6010,8 +6022,9 @@
   <div id="main">
     <div id="viewport">
       <div id="loading">Chargement du modèle…</div>
-      <div id="hint">glisser = tourner · pincer = zoom · tap pièce = sélectionner</div>
+      <div id="hint">glisser = tourner · pincer = zoom · tap ailleurs = désélectionner</div>
       <div id="gizmoHud" aria-hidden="true">
+        <span class="gizmo-titre" id="gizmoTitre">Édition</span>
         <div class="gizmo-cross">
           <span class="vide"></span>
           <button type="button" class="gizmo-btn" data-mode="move" title="Déplacer">✥</button>
@@ -6026,6 +6039,15 @@
         <div class="gizmo-actions">
           <button type="button" class="gizmo-btn" id="btnColler" title="Coller sur la moto">Coller</button>
           <button type="button" class="gizmo-btn" id="btnFlotter" title="Laisser flotter">Flotter</button>
+        </div>
+        <span class="gizmo-titre">Vue</span>
+        <div class="vue-controles">
+          <span class="vide"></span>
+          <button type="button" class="gizmo-btn" data-vue="up" title="Vue vers le haut">↑</button>
+          <span class="vide"></span>
+          <button type="button" class="gizmo-btn" data-vue="left" title="Tourner à gauche">←</button>
+          <button type="button" class="gizmo-btn" data-vue="down" title="Vue vers le bas">↓</button>
+          <button type="button" class="gizmo-btn" data-vue="right" title="Tourner à droite">→</button>
         </div>
       </div>
     </div>
@@ -6293,6 +6315,7 @@ function selectionnerPiece(id) {
   });
   document.getElementById('editionPiece').classList.add('selection-active');
   document.getElementById('editionNom').textContent = libellePiece(id);
+  document.getElementById('gizmoTitre').textContent = libellePiece(id);
   mettreAJourHudColle();
   mettreAJourHelperSelection();
   gizmoHud.classList.add('visible');
@@ -6348,6 +6371,22 @@ gizmoHud.querySelectorAll('.gizmo-btn[data-mode]').forEach(btn => {
 });
 btnColler.addEventListener('click', (e) => { e.stopPropagation(); if (pieceSelectionnee) activerColle(pieceSelectionnee, true); });
 btnFlotter.addEventListener('click', (e) => { e.stopPropagation(); if (pieceSelectionnee) activerColle(pieceSelectionnee, false); });
+
+function pivoterVue(direction) {
+  const step = 0.14;
+  if (direction === 'left') camAngleY += step;
+  if (direction === 'right') camAngleY -= step;
+  if (direction === 'up') camAngleX = Math.min(1.0, camAngleX + step);
+  if (direction === 'down') camAngleX = Math.max(-0.1, camAngleX - step);
+  updateCamera();
+}
+
+gizmoHud.querySelectorAll('.gizmo-btn[data-vue]').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    pivoterVue(btn.dataset.vue);
+  });
+});
 
 function activerColle(id, colle) {
   const addon = addons[id];
@@ -6466,14 +6505,6 @@ function mettreAJourGizmoHud() {
     gizmoHud.classList.remove('visible');
     return;
   }
-  const pos = new THREE.Vector3();
-  addons[pieceSelectionnee].pivot.getWorldPosition(pos);
-  pos.project(camera);
-  if (pos.z > 1) { gizmoHud.classList.remove('visible'); return; }
-  const x = (pos.x * 0.5 + 0.5) * viewport.clientWidth;
-  const y = (-pos.y * 0.5 + 0.5) * viewport.clientHeight - 56;
-  gizmoHud.style.left = x + 'px';
-  gizmoHud.style.top = y + 'px';
   gizmoHud.classList.add('visible');
 }
 
@@ -6499,11 +6530,6 @@ viewport.addEventListener('pointerdown', e => {
     selectionnerPiece(id);
     if (modeTransform) { demarrerDragTransform(e); e.preventDefault(); return; }
     draggingCamera = false;
-    return;
-  }
-  if (modeTransform && pieceSelectionnee) {
-    demarrerDragTransform(e);
-    e.preventDefault();
     return;
   }
   deselectionnerPiece();
