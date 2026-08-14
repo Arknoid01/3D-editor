@@ -16,6 +16,20 @@
 
 ## Lancer l'assembleur
 
+### GitHub Pages (démo en ligne, sans install)
+
+Une fois Pages activé sur le dépôt (`Settings → Pages → Source: GitHub Actions`) :
+
+**https://arknoid01.github.io/3D-editor/moto-assembleur-v3.html**
+
+Fonctionne en statique :
+- éditeur 3D, ajout de pièces, presets, export `.glb` via le bouton navigateur
+
+Ne fonctionne **pas** sur Pages (nécessite le serveur Python local) :
+- `POST /api/export-glb`, `/api/validate`, `/api/assemble` (agents IA headless)
+
+### Local (API + export headless)
+
 ```bash
 python3 api-server.py
 # → http://localhost:8765/moto-assembleur-v3.html

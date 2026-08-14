@@ -6164,8 +6164,11 @@ function afficherErreurCatalogue() {
     <div class="tuile ouverte">
       <button type="button" class="tuile-titre">Catalogue indisponible</button>
       <div class="tuile-contenu">
-        <p class="note">Impossible de charger <code>catalog.json</code>. L'assembleur doit être servi via HTTP :</p>
-        <p class="note"><code>python3 api-server.py</code><br>→ <code>http://localhost:8765/moto-assembleur-v3.html</code></p>
+        <p class="note">Impossible de charger <code>catalog.json</code>. Utilisez l'assembleur via HTTP :</p>
+        <p class="note">
+          <strong>En ligne :</strong> <a href="https://arknoid01.github.io/3D-editor/moto-assembleur-v3.html" target="_blank" rel="noopener">GitHub Pages</a><br>
+          <strong>Local :</strong> <code>python3 api-server.py</code> → <code>http://localhost:8765/moto-assembleur-v3.html</code>
+        </p>
       </div>
     </div>`;
 }
