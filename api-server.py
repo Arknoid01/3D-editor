@@ -12,7 +12,13 @@ from urllib.parse import urlparse
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 CATALOG_PATH = os.path.join(ROOT, "catalog.json")
+PRESETS_PATH = os.path.join(ROOT, "presets.json")
 EXPORT_SCRIPT = os.path.join(ROOT, "tools", "export-glb.mjs")
+
+
+def load_presets():
+    with open(PRESETS_PATH, encoding="utf-8") as f:
+        return json.load(f)
 
 
 def load_catalog():
@@ -28,6 +34,7 @@ def get_catalog_summary(catalog):
             "id": base["id"],
             "name": base["name"],
             "sockets": list(base["sockets"].keys()),
+            "exportAnchors": list(base.get("exportAnchors", {}).keys()),
         },
         "parts": [
             {
@@ -253,6 +260,8 @@ class APIHandler(SimpleHTTPRequestHandler):
         if path == "/api/catalog":
             catalog = load_catalog()
             return self._json(200, get_catalog_summary(catalog))
+        if path == "/api/presets":
+            return self._json(200, load_presets())
         return super().do_GET()
 
     def do_POST(self):
@@ -309,6 +318,7 @@ def main():
     server = ThreadedHTTPServer(("0.0.0.0", port), APIHandler)
     print(f"API assembleur sur http://localhost:{port}")
     print("  GET  /api/catalog")
+    print("  GET  /api/presets")
     print("  POST /api/validate")
     print("  POST /api/assemble")
     print("  POST /api/export-glb  → fichier .glb (nécessite npm install)")

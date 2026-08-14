@@ -23,6 +23,15 @@
         "min": { "x": -0.52, "y": -0.02, "z": -0.38 },
         "max": { "x": 0.52, "y": 1.05, "z": 0.38 }
       },
+      "exportAnchors": {
+        "trail_anchor": { "anchor": { "x": 0.05, "y": 0.55, "z": 0.5 }, "description": "Traînée / particules arrière" },
+        "wing_root_L": { "anchor": { "x": 0.48, "y": 0.55, "z": 0.02 }, "description": "Racine aile gauche" },
+        "wing_root_R": { "anchor": { "x": 0.48, "y": 0.55, "z": 0.98 }, "description": "Racine aile droite" },
+        "seat": { "anchor": { "x": 0.55, "y": 0.62, "z": 0.5 }, "description": "Siège / caméra follow" },
+        "exhaust": { "anchor": { "x": 0.22, "y": 0.25, "z": 0.88 }, "description": "Échappement / fumée" },
+        "cockpit": { "anchor": { "x": 0.88, "y": 0.72, "z": 0.5 }, "description": "Cockpit / caméra 1ère personne" },
+        "front": { "anchor": { "x": 0.95, "y": 0.5, "z": 0.5 }, "description": "Avant moto" }
+      },
       "sockets": {
         "front": {
           "id": "front",

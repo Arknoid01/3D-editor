@@ -1,0 +1,217 @@
+openapi: 3.0.3
+info:
+  title: Assembleur Moto API
+  description: API locale pour agents IA — catalogue, validation, assemblage et export GLB.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8765
+    description: Serveur local (api-server.py)
+
+paths:
+  /api/catalog:
+    get:
+      summary: Catalogue simplifié
+      operationId: getCatalog
+      responses:
+        '200':
+          description: Bases, sockets, pièces, couleurs et ancres d'export
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogSummary'
+
+  /api/presets:
+    get:
+      summary: Presets de configuration
+      operationId: getPresets
+      responses:
+        '200':
+          description: Configs prédéfinies (néon, ailes, aigle…)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresetsResponse'
+
+  /api/validate:
+    post:
+      summary: Valider une config sans l'appliquer
+      operationId: validateConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/ValidateRequest'
+                - $ref: '#/components/schemas/AssembleConfig'
+      responses:
+        '200':
+          description: Résultat de validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResult'
+
+  /api/assemble:
+    post:
+      summary: Calculer positions et rotations des pièces
+      operationId: assembleConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssembleRequest'
+      responses:
+        '200':
+          description: Pièces assemblées avec pivot complet (position + rotation)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssembleResult'
+
+  /api/export-glb:
+    post:
+      summary: Exporter un assemblage en GLB binaire
+      description: |
+        Lance Puppeteer + Three.js headless. Le GLB inclut :
+        - nœuds sémantiques (`trail_anchor`, `wing_root_L`, `seat`, …)
+        - config JSON dans `extras` du nœud racine (`assembleurConfig`)
+      operationId: exportGlb
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportRequest'
+      responses:
+        '200':
+          description: Fichier GLB binaire
+          content:
+            model/gltf-binary:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Config invalide
+        '503':
+          description: Export échoué (Puppeteer non installé, etc.)
+
+components:
+  schemas:
+    AssembleConfig:
+      type: object
+      required: [base, parts]
+      properties:
+        base:
+          type: string
+          example: bike_base
+        assetId:
+          type: string
+          example: preset_ailes
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartEntry'
+        materials:
+          type: object
+          additionalProperties:
+            type: string
+
+    PartEntry:
+      type: object
+      required: [object, socket]
+      properties:
+        object:
+          type: string
+          example: aileAvionG
+        socket:
+          type: string
+          example: wingRootLeft
+        color:
+          type: string
+          example: white
+        scale:
+          type: number
+          default: 1
+        offset:
+          type: object
+          properties:
+            x: { type: number }
+            y: { type: number }
+            z: { type: number }
+
+    ValidateRequest:
+      type: object
+      properties:
+        config:
+          $ref: '#/components/schemas/AssembleConfig'
+
+    AssembleRequest:
+      type: object
+      properties:
+        config:
+          $ref: '#/components/schemas/AssembleConfig'
+        bounds:
+          type: object
+          description: Optionnel si defaultBounds présent dans catalog.json
+
+    ExportRequest:
+      type: object
+      properties:
+        config:
+          $ref: '#/components/schemas/AssembleConfig'
+        filename:
+          type: string
+          example: moto-ailes.glb
+
+    ValidationResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        errors:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items: {}
+
+    AssembleResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        assetId:
+          type: string
+        parts:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              socket: { type: string }
+              position: { type: object }
+              rotation: { type: object }
+              scale: { type: number }
+              color: { type: string }
+
+    CatalogSummary:
+      type: object
+
+    PresetsResponse:
+      type: object
+      properties:
+        version:
+          type: integer
+        presets:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              name: { type: string }
+              description: { type: string }
+              config:
+                $ref: '#/components/schemas/AssembleConfig'

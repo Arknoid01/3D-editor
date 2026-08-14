@@ -5955,6 +5955,14 @@
   }
   .btn-select:hover, .btn-select.actif { border-color: var(--cyan); color: var(--cyan); background: rgba(0,217,255,.08); }
   .ligne-addon.selectionnee { outline: 1px solid var(--cyan); background: rgba(0,217,255,.06); }
+  .ligne-addon.cachee { display: none !important; }
+  .panel-search { padding: 10px 12px 4px; position: sticky; top: 0; z-index: 2; background: var(--panel); border-bottom: 1px solid var(--line); }
+  .panel-search input { width: 100%; padding: 8px 10px; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }
+  .panel-search input:focus { outline: none; border-color: var(--cyan-dim); }
+  .historique-btns { display: flex; gap: 8px; margin-bottom: 8px; }
+  .historique-btns .btn-action { flex: 1; margin-top: 0; }
+  .preset-btn { margin-bottom: 6px; text-transform: none; letter-spacing: 0; font-size: 13px; }
+  .tuile-cachee { display: none !important; }
   #gizmoHud {
     position: absolute; top: 12px; left: 12px; z-index: 12;
     display: none; flex-direction: column; align-items: stretch; gap: 8px;
@@ -6104,6 +6112,7 @@
 // Config UI & pièces
 // ---------------------------------------------------------------------
 const SECTIONS_UI = [
+  { id: 'presets', titre: 'Presets', ouverte: true },
   { id: 'couleurs', titre: 'Couleurs carrosserie', ouverte: true },
   { id: 'aero', titre: 'Aérodynamique', ouverte: false },
   { id: 'carrosserie', titre: 'Carrosserie & rangement', ouverte: false },
@@ -6116,96 +6125,21 @@ const SECTIONS_UI = [
   { id: 'reglages', titre: 'Réglages & export', ouverte: false },
 ];
 
-const ADDONS_CATALOG = [
-  { id: 'aileronG', section: 'aero', label: 'Aileron gauche', color: '#00d9ff', emissive: false },
-  { id: 'aileronD', section: 'aero', label: 'Aileron droit', color: '#00d9ff', emissive: false },
-  { id: 'spoiler', section: 'aero', label: 'Spoiler arrière', color: '#161b22', emissive: false },
-  { id: 'becquet', section: 'aero', label: 'Becquet avant', color: '#161b22', emissive: false },
-  { id: 'aileLatG', section: 'aero', label: 'Aile latérale G', color: '#cc2222', emissive: false },
-  { id: 'aileLatD', section: 'aero', label: 'Aile latérale D', color: '#cc2222', emissive: false },
-  { id: 'pareBrise', section: 'aero', label: 'Pare-brise', color: '#223344', emissive: false },
-  { id: 'deflecteurG', section: 'aero', label: 'Déflecteur G', color: '#1a2030', emissive: false },
-  { id: 'deflecteurD', section: 'aero', label: 'Déflecteur D', color: '#1a2030', emissive: false },
-  { id: 'gardeBoueAv', section: 'carrosserie', label: 'Garde-boue avant', color: '#222831', emissive: false },
-  { id: 'gardeBoueAr', section: 'carrosserie', label: 'Garde-boue arrière', color: '#222831', emissive: false },
-  { id: 'sacocheG', section: 'carrosserie', label: 'Sacoche G', color: '#1a1f28', emissive: false },
-  { id: 'sacocheD', section: 'carrosserie', label: 'Sacoche D', color: '#1a1f28', emissive: false },
-  { id: 'topCase', section: 'carrosserie', label: 'Top-case', color: '#2a3040', emissive: false },
-  { id: 'protegeMoteur', section: 'carrosserie', label: 'Protection moteur', color: '#444c5a', emissive: false },
-  { id: 'potEchappement', section: 'mecanique', label: 'Pot d\'échappement', color: '#555560', emissive: false },
-  { id: 'protectionChaine', section: 'mecanique', label: 'Protection chaîne', color: '#3a4050', emissive: false },
-  { id: 'radiateur', section: 'mecanique', label: 'Grille radiateur', color: '#2a3545', emissive: false },
-  { id: 'antenne', section: 'eclairage', label: 'Antenne', color: '#00d9ff', emissive: true },
-  { id: 'liseret', section: 'eclairage', label: 'Liseret néon flanc', color: '#00d9ff', emissive: true },
-  { id: 'liseretAr', section: 'eclairage', label: 'Liseret néon arrière', color: '#ff00aa', emissive: true },
-  { id: 'phareLed', section: 'eclairage', label: 'Anneau phare LED', color: '#ffffff', emissive: true },
-  { id: 'feuxJourG', section: 'eclairage', label: 'Feu de jour G', color: '#aaff00', emissive: true },
-  { id: 'feuxJourD', section: 'eclairage', label: 'Feu de jour D', color: '#aaff00', emissive: true },
-  { id: 'clignotantG', section: 'eclairage', label: 'Clignotant G', color: '#ff8800', emissive: true },
-  { id: 'clignotantD', section: 'eclairage', label: 'Clignotant D', color: '#ff8800', emissive: true },
-  { id: 'retroG', section: 'details', label: 'Rétroviseur G', color: '#1a2030', emissive: false },
-  { id: 'retroD', section: 'details', label: 'Rétroviseur D', color: '#1a2030', emissive: false },
-  { id: 'poigneeG', section: 'details', label: 'Poignée G', color: '#00d9ff', emissive: false },
-  { id: 'poigneeD', section: 'details', label: 'Poignée D', color: '#00d9ff', emissive: false },
-  { id: 'plaque', section: 'details', label: 'Support plaque', color: '#cccccc', emissive: false },
-  { id: 'aileAvionG', section: 'ailes', label: 'Aile avion G', color: '#e8ecf0', emissive: false },
-  { id: 'aileAvionD', section: 'ailes', label: 'Aile avion D', color: '#e8ecf0', emissive: false },
-  { id: 'aileOiseauG', section: 'ailes', label: 'Aile oiseau G', color: '#8b6914', emissive: false },
-  { id: 'aileOiseauD', section: 'ailes', label: 'Aile oiseau D', color: '#8b6914', emissive: false },
-  { id: 'aileChasseG', section: 'ailes', label: 'Aile chasse G', color: '#556b2f', emissive: false },
-  { id: 'aileChasseD', section: 'ailes', label: 'Aile chasse D', color: '#556b2f', emissive: false },
-  { id: 'empennageAvion', section: 'ailes', label: 'Empennage horizontal', color: '#d0d4dc', emissive: false },
-  { id: 'aileOiseauDeployG', section: 'ailes', label: 'Aile oiseau déployée G', color: '#a08030', emissive: false },
-  { id: 'aileOiseauDeployD', section: 'ailes', label: 'Aile oiseau déployée D', color: '#a08030', emissive: false },
-  { id: 'aileAlbatrosG', section: 'ailes', label: 'Aile albatros G', color: '#f0f0ea', emissive: false },
-  { id: 'aileAlbatrosD', section: 'ailes', label: 'Aile albatros D', color: '#f0f0ea', emissive: false },
-  { id: 'aileAigleG', section: 'ailes', label: 'Aile aigle G', color: '#5c4030', emissive: false },
-  { id: 'aileAigleD', section: 'ailes', label: 'Aile aigle D', color: '#5c4030', emissive: false },
-  { id: 'aileWingletG', section: 'ailes', label: 'Aile + croquignole G', color: '#dce2ec', emissive: false },
-  { id: 'aileWingletD', section: 'ailes', label: 'Aile + croquignole D', color: '#dce2ec', emissive: false },
-  { id: 'aileBiplanG', section: 'ailes', label: 'Aile biplan G', color: '#b8956a', emissive: false },
-  { id: 'aileBiplanD', section: 'ailes', label: 'Aile biplan D', color: '#b8956a', emissive: false },
-  { id: 'aileChauveSourisG', section: 'ailes', label: 'Aile chauve-souris G', color: '#3a2848', emissive: false },
-  { id: 'aileChauveSourisD', section: 'ailes', label: 'Aile chauve-souris D', color: '#3a2848', emissive: false },
-  { id: 'ailePapillonG', section: 'ailes', label: 'Aile papillon G', color: '#ff44aa', emissive: false },
-  { id: 'ailePapillonD', section: 'ailes', label: 'Aile papillon D', color: '#44ccff', emissive: false },
-  { id: 'triangleG', section: 'formes', label: 'Triangle G', color: '#8844ff', emissive: false },
-  { id: 'triangleD', section: 'formes', label: 'Triangle D', color: '#8844ff', emissive: false },
-  { id: 'triangleAv', section: 'formes', label: 'Triangle avant', color: '#ff8800', emissive: false },
-  { id: 'triangleAr', section: 'formes', label: 'Triangle arrière', color: '#ff8800', emissive: false },
-  { id: 'aileronXlG', section: 'formes', label: 'Grand aileron G', color: '#00d9ff', emissive: false },
-  { id: 'aileronXlD', section: 'formes', label: 'Grand aileron D', color: '#00d9ff', emissive: false },
-  { id: 'aileDelta', section: 'formes', label: 'Aile delta', color: '#ff00aa', emissive: false },
-  { id: 'voileG', section: 'formes', label: 'Voile G', color: '#aaff00', emissive: false },
-  { id: 'voileD', section: 'formes', label: 'Voile D', color: '#aaff00', emissive: false },
-  { id: 'pyramide', section: 'formes', label: 'Pyramide', color: '#ff8800', emissive: false },
-  { id: 'cubeDeco', section: 'formes', label: 'Cube', color: '#444c5a', emissive: false },
-  { id: 'sphereDeco', section: 'formes', label: 'Sphère', color: '#8844ff', emissive: false },
-  { id: 'coneSpike', section: 'formes', label: 'Pic / cône', color: '#cc2222', emissive: false },
-  { id: 'hexPlate', section: 'formes', label: 'Hexagone', color: '#00d9ff', emissive: false },
-  { id: 'anneauDeco', section: 'formes', label: 'Anneau néon', color: '#ff00aa', emissive: true },
-  { id: 'lameDeco', section: 'formes', label: 'Lame', color: '#f0f0f0', emissive: false },
-  { id: 'croixDeco', section: 'formes', label: 'Croix', color: '#cc2222', emissive: false },
-  { id: 'prisme', section: 'formes', label: 'Prisme', color: '#444c5a', emissive: false },
-  { id: 'etoileDeco', section: 'formes', label: 'Étoile néon', color: '#aaff00', emissive: true },
-  { id: 'disqueDeco', section: 'formes', label: 'Disque', color: '#444c5a', emissive: false },
-  { id: 'disqueNeon', section: 'formes', label: 'Disque néon', color: '#00d9ff', emissive: true },
-  { id: 'chevronAv', section: 'formes', label: 'Chevron avant', color: '#ff8800', emissive: false },
-  { id: 'chevronAr', section: 'formes', label: 'Chevron arrière', color: '#ff8800', emissive: false },
-  { id: 'doubleChevron', section: 'formes', label: 'Double chevron', color: '#ff8800', emissive: false },
-  { id: 'losange', section: 'formes', label: 'Losange', color: '#8844ff', emissive: false },
-  { id: 'flecheAv', section: 'formes', label: 'Flèche avant', color: '#cc2222', emissive: false },
-  { id: 'flecheAr', section: 'formes', label: 'Flèche arrière', color: '#cc2222', emissive: false },
-  { id: 'arcDeco', section: 'formes', label: 'Arc', color: '#00d9ff', emissive: false },
-  { id: 'demiCercle', section: 'formes', label: 'Demi-cercle', color: '#8844ff', emissive: false },
-  { id: 'ovale', section: 'formes', label: 'Ovale', color: '#ff00aa', emissive: false },
-  { id: 'cristal', section: 'formes', label: 'Cristal', color: '#00d9ff', emissive: false },
-  { id: 'cadreCarre', section: 'formes', label: 'Cadre carré', color: '#f0f0f0', emissive: false },
-  { id: 'zigzag', section: 'formes', label: 'Zigzag', color: '#aaff00', emissive: false },
-  { id: 'spiraleDeco', section: 'formes', label: 'Spirale', color: '#ff00aa', emissive: true },
-  { id: 'traitNeon', section: 'formes', label: 'Trait néon', color: '#00d9ff', emissive: true },
-  { id: 'parallelogramme', section: 'formes', label: 'Parallélogramme', color: '#444c5a', emissive: false },
-];
+let ADDONS_CATALOG = [];
+
+function couleurHexCatalog(catalog, colorKey) {
+  return catalog.colors[colorKey] || colorKey || '#888899';
+}
+
+function buildAddonsCatalog(catalog) {
+  return Object.values(catalog.parts).map(p => ({
+    id: p.id,
+    section: p.section || 'details',
+    label: p.name,
+    color: couleurHexCatalog(catalog, p.defaultColor),
+    emissive: !!p.emissive,
+  }));
+}
 
 const COULEURS_CARROSSERIE = [
   { id: 'rouge', label: 'Zones rouges', value: '#cc2222' },
@@ -6220,6 +6154,11 @@ const COULEURS_CARROSSERIE = [
 function construirePanneau() {
   const panel = document.getElementById('panel');
   panel.innerHTML = '';
+
+  const searchBar = document.createElement('div');
+  searchBar.className = 'panel-search';
+  searchBar.innerHTML = '<input type="search" id="filtrePieces" placeholder="Rechercher une pièce (aile, néon…)" autocomplete="off">';
+  panel.appendChild(searchBar);
 
   SECTIONS_UI.forEach(sec => {
     const tuile = document.createElement('div');
@@ -6236,7 +6175,16 @@ function construirePanneau() {
     const contenu = document.createElement('div');
     contenu.className = 'tuile-contenu';
 
-    if (sec.id === 'couleurs') {
+    if (sec.id === 'presets') {
+      contenu.innerHTML = `
+        <p class="note">Configs prédéfinies et sauvegardes locales (localStorage).</p>
+        <div id="presetsListe"></div>
+        <div class="champ" style="margin-top:12px;">
+          <label>Nom de la sauvegarde</label>
+          <input type="text" id="presetNom" placeholder="Ma moto néon">
+          <button type="button" class="btn-action secondaire" id="btnSavePreset" style="margin-top:8px;">Sauvegarder la config actuelle</button>
+        </div>`;
+    } else if (sec.id === 'couleurs') {
       contenu.innerHTML = '<p class="note">Chaque zone de la texture est recolorée indépendamment (rouge, blanc, noir, métal).</p>';
       COULEURS_CARROSSERIE.forEach(c => {
         const ligne = document.createElement('div');
@@ -6264,6 +6212,14 @@ function construirePanneau() {
               <div class="ligne-rot"><span class="axe">Y</span><input type="range" id="rotY" min="-3.14" max="3.14" step="0.05" value="0"><span class="val" id="v-rotY">0°</span></div>
               <div class="ligne-rot"><span class="axe">Z</span><input type="range" id="rotZ" min="-3.14" max="3.14" step="0.05" value="0"><span class="val" id="v-rotZ">0°</span></div>
             </div>
+            <div class="historique-btns">
+              <button type="button" class="btn-action secondaire" id="btnUndo" disabled title="Ctrl+Z">↶ Annuler</button>
+              <button type="button" class="btn-action secondaire" id="btnRedo" disabled title="Ctrl+Y">↷ Refaire</button>
+            </div>
+            <div class="champ">
+              <label style="cursor:pointer;"><input type="checkbox" id="snapRotation" checked style="width:auto;margin-right:6px;"> Snap rotation 15°</label>
+            </div>
+            <button type="button" class="btn-action secondaire" id="btnMiroir">Dupliquer miroir G ↔ D</button>
             <button type="button" class="btn-action secondaire" id="btnCollerPanel">Coller sur la moto</button>
             <button type="button" class="btn-action secondaire" id="btnFlotterPanel">Laisser flotter</button>
             <button type="button" class="btn-action secondaire" id="btnResetPiece">Réinitialiser position</button>
@@ -6301,8 +6257,8 @@ function construirePanneau() {
     const chk = document.getElementById('chk-' + a.id);
     const col = document.getElementById('col-' + a.id);
     const sel = document.querySelector('[data-select="' + a.id + '"]');
-    if (chk) chk.addEventListener('change', () => { rafraichirAddons(); if (chk.checked) selectionnerPiece(a.id); });
-    if (col) col.addEventListener('input', rafraichirAddons);
+    if (chk) chk.addEventListener('change', () => { enregistrerHistorique(); rafraichirAddons(); if (chk.checked) selectionnerPiece(a.id); });
+    if (col) { col.addEventListener('input', rafraichirAddons); col.addEventListener('change', enregistrerHistorique); }
     if (sel) sel.addEventListener('click', (e) => { e.stopPropagation(); selectionnerPiece(a.id); });
   });
   document.getElementById('echelleAddons').addEventListener('input', () => {
@@ -6324,10 +6280,37 @@ function construirePanneau() {
     if (pieceSelectionnee) activerColle(pieceSelectionnee, false);
   });
   document.getElementById('btnResetPiece').addEventListener('click', () => {
-    if (pieceSelectionnee) reinitialiserPiece(pieceSelectionnee);
+    if (pieceSelectionnee) { enregistrerHistorique(); reinitialiserPiece(pieceSelectionnee); }
+  });
+  document.getElementById('filtrePieces').addEventListener('input', (e) => filtrerPieces(e.target.value));
+  document.getElementById('btnUndo').addEventListener('click', annuler);
+  document.getElementById('btnRedo').addEventListener('click', refaire);
+  document.getElementById('btnMiroir').addEventListener('click', dupliquerMiroir);
+  document.getElementById('btnSavePreset').addEventListener('click', () => {
+    const nom = (document.getElementById('presetNom').value || '').trim();
+    if (!nom) return;
+    sauvegarderPresetLocal(nom);
+    document.getElementById('presetNom').value = '';
+  });
+  remplirPresets();
+}
+
+function filtrerPieces(query) {
+  const q = query.trim().toLowerCase();
+  document.querySelectorAll('.ligne-addon').forEach(l => {
+    const id = l.dataset.addonId || '';
+    const def = ADDONS_CATALOG.find(a => a.id === id);
+    const label = (def ? def.label : id).toLowerCase();
+    const match = !q || label.includes(q) || id.toLowerCase().includes(q);
+    l.classList.toggle('cachee', !match);
+  });
+  document.querySelectorAll('.tuile').forEach(t => {
+    const sec = t.dataset.section;
+    if (['presets', 'couleurs', 'edition', 'reglages'].includes(sec)) return;
+    const anyVisible = t.querySelector('.ligne-addon:not(.cachee)');
+    t.classList.toggle('tuile-cachee', !!q && !anyVisible);
   });
 }
-construirePanneau();
 
 // ---------------------------------------------------------------------
 // Menu hamburger (mobile)
@@ -6583,9 +6566,16 @@ function mettreAJourSlidersRotation() {
   });
 }
 
+function snapAngle(rad) {
+  const el = document.getElementById('snapRotation');
+  if (!el || !el.checked) return rad;
+  const step = 15 * Math.PI / 180;
+  return Math.round(rad / step) * step;
+}
+
 function appliquerRotationSlider(axe, valeur) {
   if (!pieceSelectionnee || !addons[pieceSelectionnee]) return;
-  addons[pieceSelectionnee].pivot.rotation[axe] = valeur;
+  addons[pieceSelectionnee].pivot.rotation[axe] = snapAngle(valeur);
   mettreAJourSlidersRotation();
   mettreAJourHelperSelection();
 }
@@ -6831,7 +6821,19 @@ viewport.addEventListener('pointerdown', e => {
   draggingCamera = true;
   lastX = e.clientX; lastY = e.clientY;
 });
-window.addEventListener('pointerup', () => { draggingCamera = false; dragTransform = false; pinchDist = 0; });
+window.addEventListener('pointerup', () => {
+  if (dragTransform && pieceSelectionnee && modeTransform === 'rotate') {
+    const addon = addons[pieceSelectionnee];
+    addon.pivot.rotation.x = snapAngle(addon.pivot.rotation.x);
+    addon.pivot.rotation.y = snapAngle(addon.pivot.rotation.y);
+    addon.pivot.rotation.z = snapAngle(addon.pivot.rotation.z);
+    mettreAJourSlidersRotation();
+  }
+  if (dragTransform) enregistrerHistorique();
+  draggingCamera = false;
+  dragTransform = false;
+  pinchDist = 0;
+});
 window.addEventListener('pointermove', e => {
   if (dragTransform) { appliquerDragTransform(e); return; }
   if (!draggingCamera) return;
@@ -6990,8 +6992,11 @@ loader.parse(arrayBuffer, '', (gltf) => {
   loadingEl.style.display = 'none';
   document.getElementById('btnExport').disabled = false;
   appliquerCouleursCarrosserie();
-  construireAddons();
-  rafraichirAddons();
+  catalogReady.then(() => {
+    construireAddons();
+    rafraichirAddons();
+    enregistrerHistorique();
+  });
 }, (err) => {
   loadingEl.textContent = 'Erreur de chargement : ' + err.message;
 });
@@ -7891,9 +7896,296 @@ function rafraichirAddons() {
 }
 
 // ---------------------------------------------------------------------
+// Historique undo / redo
+// ---------------------------------------------------------------------
+const historique = { stack: [], index: -1, max: 50 };
+let historiqueSuspendu = false;
+
+function capturerEtat() {
+  const state = { addons: {}, materials: {}, echelle: 1 };
+  const echelleEl = document.getElementById('echelleAddons');
+  if (echelleEl) state.echelle = parseFloat(echelleEl.value);
+  ADDONS_CATALOG.forEach(a => {
+    const chk = document.getElementById('chk-' + a.id);
+    const col = document.getElementById('col-' + a.id);
+    const addon = addons[a.id];
+    if (!addon) return;
+    state.addons[a.id] = {
+      visible: !!(chk && chk.checked),
+      color: col ? col.value : a.color,
+      position: addon.pivot.position.toArray(),
+      rotation: [addon.pivot.rotation.x, addon.pivot.rotation.y, addon.pivot.rotation.z],
+      scaleMul: addon.scaleMul,
+      colle: addon.colle,
+      etage: addon.etage,
+    };
+  });
+  COULEURS_CARROSSERIE.forEach(c => {
+    const el = document.getElementById('col-' + c.id);
+    if (el) state.materials[c.id] = el.value;
+  });
+  return state;
+}
+
+function restaurerEtat(state) {
+  if (!state) return;
+  historiqueSuspendu = true;
+  ADDONS_CATALOG.forEach(a => {
+    const s = state.addons[a.id];
+    const addon = addons[a.id];
+    if (!s || !addon) return;
+    const chk = document.getElementById('chk-' + a.id);
+    const col = document.getElementById('col-' + a.id);
+    if (chk) chk.checked = s.visible;
+    if (col) col.value = s.color;
+    addon.pivot.position.fromArray(s.position);
+    addon.pivot.rotation.set(s.rotation[0], s.rotation[1], s.rotation[2]);
+    addon.scaleMul = s.scaleMul;
+    addon.colle = s.colle;
+    addon.flotter = !s.colle;
+    addon.etage = s.etage;
+  });
+  Object.entries(state.materials || {}).forEach(([zone, hex]) => {
+    const el = document.getElementById('col-' + zone);
+    if (el) el.value = hex;
+  });
+  const echelleEl = document.getElementById('echelleAddons');
+  if (echelleEl && state.echelle) {
+    echelleEl.value = state.echelle;
+    document.getElementById('v-echelleAddons').textContent = state.echelle;
+  }
+  appliquerCouleursCarrosserie();
+  rafraichirAddons();
+  Object.values(addons).forEach(a => { if (a.colle && a.pivot.visible) collerSurMoto(a.pivot); });
+  historiqueSuspendu = false;
+  mettreAJourBoutonsHistorique();
+}
+
+function enregistrerHistorique() {
+  if (historiqueSuspendu || !bikeModel) return;
+  const snap = capturerEtat();
+  historique.stack = historique.stack.slice(0, historique.index + 1);
+  historique.stack.push(snap);
+  if (historique.stack.length > historique.max) historique.stack.shift();
+  historique.index = historique.stack.length - 1;
+  mettreAJourBoutonsHistorique();
+}
+
+function mettreAJourBoutonsHistorique() {
+  const undo = document.getElementById('btnUndo');
+  const redo = document.getElementById('btnRedo');
+  if (undo) undo.disabled = historique.index <= 0;
+  if (redo) redo.disabled = historique.index >= historique.stack.length - 1;
+}
+
+function annuler() {
+  if (historique.index <= 0) return;
+  historique.index--;
+  restaurerEtat(historique.stack[historique.index]);
+}
+
+function refaire() {
+  if (historique.index >= historique.stack.length - 1) return;
+  historique.index++;
+  restaurerEtat(historique.stack[historique.index]);
+}
+
+function idMiroir(id) {
+  if (id.endsWith('G')) return id.slice(0, -1) + 'D';
+  if (id.endsWith('D')) return id.slice(0, -1) + 'G';
+  return null;
+}
+
+function dupliquerMiroir() {
+  if (!pieceSelectionnee) return;
+  const srcId = pieceSelectionnee;
+  const dstId = idMiroir(srcId);
+  if (!dstId || !addons[dstId]) return;
+  enregistrerHistorique();
+  const src = addons[srcId];
+  const dst = addons[dstId];
+  const chk = document.getElementById('chk-' + dstId);
+  const col = document.getElementById('col-' + srcId);
+  const colDst = document.getElementById('col-' + dstId);
+  if (chk) chk.checked = true;
+  if (col && colDst) colDst.value = col.value;
+  const cz = bikeBounds ? (bikeBounds.min.z + bikeBounds.max.z) / 2 : 0;
+  dst.pivot.position.set(src.pivot.position.x, src.pivot.position.y, 2 * cz - src.pivot.position.z);
+  dst.pivot.rotation.set(src.pivot.rotation.x, -src.pivot.rotation.y, -src.pivot.rotation.z);
+  dst.scaleMul = src.scaleMul;
+  dst.colle = src.colle;
+  dst.flotter = src.flotter;
+  dst.etage = src.etage;
+  rafraichirAddons();
+  if (dst.colle) collerSurMoto(dst.pivot);
+  selectionnerPiece(dstId);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.target.matches('input, textarea')) return;
+  if (e.ctrlKey && e.key === 'z') { e.preventDefault(); annuler(); }
+  if (e.ctrlKey && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); refaire(); }
+});
+
+// ---------------------------------------------------------------------
+// Presets
+// ---------------------------------------------------------------------
+let presetsData = { presets: [] };
+
+function lirePresetsLocaux() {
+  try { return JSON.parse(localStorage.getItem('assembleur_presets') || '[]'); }
+  catch { return []; }
+}
+
+function sauvegarderPresetLocal(nom) {
+  const presets = lirePresetsLocaux();
+  presets.push({ id: 'local_' + Date.now(), name: nom, config: construireConfigExport(), local: true });
+  localStorage.setItem('assembleur_presets', JSON.stringify(presets));
+  remplirPresets();
+}
+
+function remplirPresets() {
+  const liste = document.getElementById('presetsListe');
+  if (!liste) return;
+  liste.innerHTML = '';
+  const all = [...(presetsData.presets || []), ...lirePresetsLocaux()];
+  all.forEach(p => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn-action secondaire preset-btn';
+    btn.textContent = p.name + (p.local ? ' ★' : '');
+    btn.title = p.description || '';
+    btn.addEventListener('click', () => {
+      enregistrerHistorique();
+      if (p.config.parts && p.config.parts[0] && p.config.parts[0].socket) {
+        appliquerAssemblageIA(p.config);
+      } else {
+        appliquerConfigComplete(p.config);
+      }
+    });
+    liste.appendChild(btn);
+  });
+}
+
+function appliquerConfigComplete(config) {
+  if (!config) return { success: false, errors: ['Config vide'] };
+  ADDONS_CATALOG.forEach(a => {
+    const chk = document.getElementById('chk-' + a.id);
+    if (chk) chk.checked = false;
+  });
+  deselectionnerPiece();
+  const echelleGlob = config.echelleAddons || 1;
+  const echelleEl = document.getElementById('echelleAddons');
+  if (echelleEl) {
+    echelleEl.value = echelleGlob;
+    document.getElementById('v-echelleAddons').textContent = echelleGlob;
+  }
+  (config.parts || []).forEach(p => {
+    const id = p.object || p.id;
+    const addon = addons[id];
+    if (!addon) return;
+    const chk = document.getElementById('chk-' + id);
+    const col = document.getElementById('col-' + id);
+    if (chk) chk.checked = p.enabled !== false;
+    if (col && p.color) col.value = p.color.startsWith('#') ? p.color : (catalogData?.colors[p.color] || p.color);
+    if (p.position) addon.pivot.position.set(p.position.x, p.position.y, p.position.z);
+    if (p.rotation) addon.pivot.rotation.set(p.rotation.x, p.rotation.y, p.rotation.z);
+    addon.scaleMul = p.scaleMul != null ? p.scaleMul : (p.scale || 1);
+    addon.colle = p.colle !== false;
+    addon.flotter = !addon.colle;
+    addon.etage = p.etage != null ? p.etage : etageLePlusProche(addon.pivot.position.y);
+  });
+  Object.entries(config.materials || config.materialColors || {}).forEach(([zone, hex]) => {
+    const el = document.getElementById('col-' + zone);
+    if (el) el.value = hex.startsWith('#') ? hex : (catalogData?.colors[hex] || hex);
+  });
+  appliquerCouleursCarrosserie();
+  rafraichirAddons();
+  Object.values(addons).forEach(a => { if (a.colle && a.pivot.visible) collerSurMoto(a.pivot); });
+  return { success: true };
+}
+
+// ---------------------------------------------------------------------
+// Export .glb — ancres sémantiques + config embarquée
+// ---------------------------------------------------------------------
+let exportAnchorsGroup = null;
+
+function anchorToWorld(anchorNorm) {
+  const min = bikeBounds.min, max = bikeBounds.max;
+  const size = bikeBounds.getSize(new THREE.Vector3());
+  return new THREE.Vector3(
+    min.x + size.x * anchorNorm.x,
+    min.y + size.y * anchorNorm.y,
+    min.z + size.z * anchorNorm.z
+  );
+}
+
+function mettreAJourAncresExport() {
+  if (!bikeBounds || !catalogData) return;
+  const anchorsDef = catalogData.bases?.bike_base?.exportAnchors;
+  if (!anchorsDef) return;
+  if (exportAnchorsGroup) assemblage.remove(exportAnchorsGroup);
+  exportAnchorsGroup = new THREE.Group();
+  exportAnchorsGroup.name = 'export_anchors';
+  Object.entries(anchorsDef).forEach(([name, def]) => {
+    const node = new THREE.Object3D();
+    node.name = name;
+    node.position.copy(anchorToWorld(def.anchor));
+    exportAnchorsGroup.add(node);
+  });
+  assemblage.add(exportAnchorsGroup);
+}
+
+function construireConfigExport() {
+  const echelle = parseFloat(document.getElementById('echelleAddons')?.value || '1');
+  const parts = [];
+  ADDONS_CATALOG.forEach(a => {
+    const chk = document.getElementById('chk-' + a.id);
+    if (!chk || !chk.checked) return;
+    const addon = addons[a.id];
+    if (!addon) return;
+    const col = document.getElementById('col-' + a.id);
+    parts.push({
+      object: a.id,
+      enabled: true,
+      position: { x: addon.pivot.position.x, y: addon.pivot.position.y, z: addon.pivot.position.z },
+      rotation: { x: addon.pivot.rotation.x, y: addon.pivot.rotation.y, z: addon.pivot.rotation.z },
+      scaleMul: addon.scaleMul,
+      scale: addon.scaleMul * echelle,
+      color: col ? col.value : a.color,
+      colle: addon.colle,
+      etage: addon.etage,
+    });
+  });
+  const materials = {};
+  COULEURS_CARROSSERIE.forEach(c => {
+    const el = document.getElementById('col-' + c.id);
+    if (el) materials[c.id] = el.value;
+  });
+  return {
+    version: 1,
+    base: 'bike_base',
+    assetId: (document.getElementById('nomFichier')?.value || 'ma-moto-custom').trim(),
+    echelleAddons: echelle,
+    parts,
+    materials,
+    bounds: boundsToPlain(),
+    exportAnchors: Object.keys(catalogData?.bases?.bike_base?.exportAnchors || {}),
+  };
+}
+
+function preparerExportGlb() {
+  mettreAJourAncresExport();
+  assemblage.name = 'assemblage';
+  assemblage.userData.assembleurConfig = construireConfigExport();
+  assemblage.userData.generator = '3D-editor-assembleur-v3';
+}
+
+// ---------------------------------------------------------------------
 // Export .glb
 // ---------------------------------------------------------------------
 function exporterGlb() {
+  preparerExportGlb();
   const exporter = new THREE.GLTFExporter();
   const nom = (document.getElementById('nomFichier').value || 'moto-custom').trim();
   exporter.parse(assemblage, (result) => {
@@ -7913,6 +8205,7 @@ function exporterGlbPromise() {
   return new Promise((resolve, reject) => {
     if (!assemblage) return reject(new Error('Scène non prête'));
     try {
+      preparerExportGlb();
       const exporter = new THREE.GLTFExporter();
       exporter.parse(assemblage, (result) => {
         if (!result) return reject(new Error('Export GLB vide'));
@@ -7940,8 +8233,22 @@ async function assemblerEtExporterGlb(config) {
 // ---------------------------------------------------------------------
 let catalogData = null;
 
-fetch('catalog.json').then(r => r.json()).then(c => { catalogData = c; }).catch(err => {
+const catalogReady = fetch('catalog.json').then(r => r.json()).then(c => {
+  catalogData = c;
+  ADDONS_CATALOG = buildAddonsCatalog(c);
+  return c;
+}).catch(err => {
   console.warn('Catalogue non chargé:', err);
+  return null;
+});
+
+const presetsReady = fetch('presets.json').then(r => r.json()).then(p => {
+  presetsData = p;
+  return p;
+}).catch(() => ({ presets: [] }));
+
+Promise.all([catalogReady, presetsReady]).then(([cat]) => {
+  if (cat) construirePanneau();
 });
 
 function boundsToPlain() {
@@ -7992,19 +8299,23 @@ function appliquerAssemblageIA(config) {
 }
 
 window.AssembleurAPI = {
-  isReady: () => !!(catalogData && bikeModel),
+  isReady: () => !!(catalogData && bikeModel && ADDONS_CATALOG.length),
   getCatalog: () => catalogData ? AssemblerEngine.getCatalog(catalogData) : null,
   getRawCatalog: () => catalogData,
+  getPresets: () => presetsData,
   getBounds: () => boundsToPlain(),
+  getExportConfig: () => construireConfigExport(),
   validate: (config) => {
     if (!catalogData) return { success: false, errors: ['Catalogue non chargé'] };
     return AssemblerEngine.validateConfig(config, catalogData);
   },
   assemble: (config) => appliquerAssemblageIA(config),
+  applyConfig: (config) => appliquerConfigComplete(config),
   assembleAndExport: (config) => assemblerEtExporterGlb(config),
   exportGlb: () => exporterGlbPromise(),
   exemple: () => ({
     base: 'bike_base',
+    assetId: 'preset_exemple',
     parts: [
       { object: 'spoiler', socket: 'rearCenter' },
       { object: 'aileronG', socket: 'leftSideRear', color: 'cyan' },
@@ -8013,6 +8324,17 @@ window.AssembleurAPI = {
       { object: 'antenne', socket: 'antennaRear', color: 'magenta' }
     ],
     materials: { rouge: 'black', blanc: 'white', noir: 'black', chrome: 'chrome' }
+  }),
+  presetAiles: () => ({
+    base: 'bike_base',
+    assetId: 'preset_ailes',
+    parts: [
+      { object: 'aileAvionG', socket: 'wingRootLeft', color: 'white' },
+      { object: 'aileAvionD', socket: 'wingRootRight', color: 'white' },
+      { object: 'empennageAvion', socket: 'empennageRear', color: 'white' },
+      { object: 'spoiler', socket: 'rearCenter', color: 'dark' }
+    ],
+    materials: { rouge: 'red', blanc: 'white', noir: 'black', chrome: 'chrome' }
   })
 };
 

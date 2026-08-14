@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "presets": [
+    {
+      "id": "neon",
+      "name": "Moto néon",
+      "description": "Liserets et accents lumineux",
+      "config": {
+        "base": "bike_base",
+        "assetId": "preset_neon",
+        "parts": [
+          { "object": "liseret", "socket": "neonSide", "color": "cyan" },
+          { "object": "liseretAr", "socket": "neonRear", "color": "magenta" },
+          { "object": "antenne", "socket": "antennaRear", "color": "cyan" },
+          { "object": "phareLed", "socket": "headlight", "color": "white" }
+        ],
+        "materials": { "rouge": "black", "blanc": "white", "noir": "black", "chrome": "chrome" }
+      }
+    },
+    {
+      "id": "ailes",
+      "name": "Moto-ailes",
+      "description": "Ailes avion + empennage",
+      "config": {
+        "base": "bike_base",
+        "assetId": "preset_ailes",
+        "parts": [
+          { "object": "aileAvionG", "socket": "wingRootLeft", "color": "white" },
+          { "object": "aileAvionD", "socket": "wingRootRight", "color": "white" },
+          { "object": "empennageAvion", "socket": "empennageRear", "color": "white" },
+          { "object": "spoiler", "socket": "rearCenter", "color": "dark" }
+        ],
+        "materials": { "rouge": "red", "blanc": "white", "noir": "black", "chrome": "chrome" }
+      }
+    },
+    {
+      "id": "aigle",
+      "name": "Moto aigle",
+      "description": "Ailes d'aigle déployées",
+      "config": {
+        "base": "bike_base",
+        "assetId": "preset_aigle",
+        "parts": [
+          { "object": "aileAigleG", "socket": "wingRootLeft", "color": "orange" },
+          { "object": "aileAigleD", "socket": "wingRootRight", "color": "orange" },
+          { "object": "aileOiseauDeployG", "socket": "wingTopLeft", "color": "orange" },
+          { "object": "aileOiseauDeployD", "socket": "wingTopRight", "color": "orange" }
+        ],
+        "materials": { "rouge": "black", "blanc": "white", "noir": "black", "chrome": "chrome" }
+      }
+    },
+    {
+      "id": "exemple",
+      "name": "Exemple IA",
+      "description": "Config de démo AssembleurAPI.exemple()",
+      "config": {
+        "base": "bike_base",
+        "assetId": "preset_exemple",
+        "parts": [
+          { "object": "spoiler", "socket": "rearCenter" },
+          { "object": "aileronG", "socket": "leftSideRear", "color": "cyan" },
+          { "object": "aileronD", "socket": "rightSideRear", "color": "cyan" },
+          { "object": "liseret", "socket": "neonSide", "color": "cyan" },
+          { "object": "antenne", "socket": "antennaRear", "color": "magenta" }
+        ],
+        "materials": { "rouge": "black", "blanc": "white", "noir": "black", "chrome": "chrome" }
+      }
+    }
+  ]
+}

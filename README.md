@@ -7,9 +7,12 @@
 | Fichier | Rôle |
 |---------|------|
 | `moto-assembleur-v3.html` | Interface + rendu 3D |
-| `catalog.json` | Bases, sockets, pièces, mounts, couleurs |
+| `catalog.json` | Bases, sockets, pièces, mounts, couleurs, **exportAnchors** |
+| `presets.json` | Presets prédéfinis (néon, ailes, aigle…) |
 | `assembler-engine.js` | Moteur d'assemblage (validation + placement) |
 | `api-server.py` | API locale pour agents IA |
+| `openapi.yaml` | Spécification OpenAPI des endpoints |
+| `docker-compose.yml` | Lancement API + export GLB en conteneur |
 
 ## Lancer l'assembleur
 
@@ -54,10 +57,36 @@ L'agent choisit des **sockets sémantiques** (`rearCenter`, `leftSide`…) — j
 ## API HTTP
 
 ```bash
-GET  /api/catalog       # catalogue pour l'agent
+GET  /api/catalog       # catalogue pour l'agent (inclut exportAnchors)
+GET  /api/presets       # configs prédéfinies (néon, ailes, aigle…)
 POST /api/validate      # { "config": { ... } }
-POST /api/assemble      # { "config": { ... }, "bounds": { ... } }  (bounds optionnels si defaultBounds dans catalog.json)
+POST /api/assemble      # { "config": { ... }, "bounds": { ... } }  (bounds optionnels)
 POST /api/export-glb    # { "config": { ... } }  → fichier .glb binaire
+```
+
+Spécification complète : `openapi.yaml`
+
+### Export GLB — intégration jeu
+
+Le GLB exporté contient :
+
+- **Nœuds sémantiques** : `trail_anchor`, `wing_root_L`, `wing_root_R`, `seat`, `exhaust`, `cockpit`, `front` (groupe `export_anchors`)
+- **Config embarquée** : JSON dans `extras.assembleurConfig` du nœud racine `assemblage`
+
+Exemple preset moto-ailes :
+
+```bash
+curl -X POST http://localhost:8765/api/export-glb \
+  -H 'Content-Type: application/json' \
+  -d '{"config":{"base":"bike_base","assetId":"preset_ailes","parts":[{"object":"aileAvionG","socket":"wingRootLeft","color":"white"},{"object":"aileAvionD","socket":"wingRootRight","color":"white"},{"object":"empennageAvion","socket":"empennageRear","color":"white"}],"materials":{"rouge":"red","blanc":"white","noir":"black","chrome":"chrome"}}}' \
+  --output moto-ailes.glb
+```
+
+### Docker
+
+```bash
+docker compose up
+# → http://localhost:8765/moto-assembleur-v3.html
 ```
 
 ### Export GLB headless (sans navigateur manuel)
