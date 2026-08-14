@@ -7587,10 +7587,11 @@ function construireAddons() {
   plaque.position.set(min.x + size.x * 0.08, min.y + size.y * 0.35, 0);
   ajouterPiece('plaque', plaque);
 
-  // Ailes avion & oiseau (profil NACA, effillement, dièdre)
+  // Ailes avion & oiseau (profil NACA, effillement, dièdre) — échelle −85 %
+  const sA = 0.15;
   [[-1, 'aileAvionG', 'avion'], [1, 'aileAvionD', 'avion']].forEach(([sens, id, type]) => {
     const m = creerAileMesh({
-      envergure: size.z * 2.2, cordeRacine: size.x * 0.42,
+      envergure: size.z * 2.2 * sA, cordeRacine: size.x * 0.42 * sA,
       couleur: def(id).color, emissif: false, spanSign: sens, type,
     });
     m.position.set(cx - size.x * 0.08, min.y + size.y * 0.52, sens * size.z * 0.46);
@@ -7600,7 +7601,7 @@ function construireAddons() {
 
   [[-1, 'aileOiseauG', 'oiseau'], [1, 'aileOiseauD', 'oiseau']].forEach(([sens, id, type]) => {
     const m = creerAileMesh({
-      envergure: size.z * 1.9, cordeRacine: size.x * 0.38,
+      envergure: size.z * 1.9 * sA, cordeRacine: size.x * 0.38 * sA,
       couleur: def(id).color, emissif: false, spanSign: sens, type,
     });
     m.position.set(cx - size.x * 0.02, min.y + size.y * 0.58, sens * size.z * 0.44);
@@ -7611,7 +7612,7 @@ function construireAddons() {
 
   [[-1, 'aileChasseG', 'chasse'], [1, 'aileChasseD', 'chasse']].forEach(([sens, id, type]) => {
     const m = creerAileMesh({
-      envergure: size.z * 2.0, cordeRacine: size.x * 0.36,
+      envergure: size.z * 2.0 * sA, cordeRacine: size.x * 0.36 * sA,
       couleur: def(id).color, emissif: false, spanSign: sens, type,
     });
     m.position.set(cx - size.x * 0.12, min.y + size.y * 0.48, sens * size.z * 0.42);
@@ -7621,7 +7622,7 @@ function construireAddons() {
 
   [[-1, 'aileOiseauDeployG', 'oiseauDeploy'], [1, 'aileOiseauDeployD', 'oiseauDeploy']].forEach(([sens, id, type]) => {
     const m = creerAileMesh({
-      envergure: size.z * 2.4, cordeRacine: size.x * 0.34,
+      envergure: size.z * 2.4 * sA, cordeRacine: size.x * 0.34 * sA,
       couleur: def(id).color, emissif: false, spanSign: sens, type,
     });
     m.position.set(cx, min.y + size.y * 0.62, sens * size.z * 0.48);
@@ -7631,7 +7632,7 @@ function construireAddons() {
   });
 
   const empennageAvion = creerAileMesh({
-    envergure: size.z * 0.85, cordeRacine: size.x * 0.14,
+    envergure: size.z * 0.85 * sA, cordeRacine: size.x * 0.14 * sA,
     couleur: def('empennageAvion').color, emissif: false, spanSign: 1, type: 'empennage',
   });
   empennageAvion.position.set(min.x + size.x * 0.04, min.y + size.y * 0.72, 0);
@@ -7639,7 +7640,7 @@ function construireAddons() {
 
   [[-1, 'aileAlbatrosG'], [1, 'aileAlbatrosD']].forEach(([sens, id]) => {
     const m = creerAileMesh({
-      envergure: size.z * 3.6, cordeRacine: size.x * 0.32,
+      envergure: size.z * 3.6 * sA, cordeRacine: size.x * 0.32 * sA,
       couleur: def(id).color, emissif: false, spanSign: sens, type: 'albatros',
     });
     m.position.set(cx - size.x * 0.06, min.y + size.y * 0.56, sens * size.z * 0.44);
@@ -7649,7 +7650,7 @@ function construireAddons() {
 
   [[-1, 'aileAigleG'], [1, 'aileAigleD']].forEach(([sens, id]) => {
     const m = creerAileMesh({
-      envergure: size.z * 2.1, cordeRacine: size.x * 0.4,
+      envergure: size.z * 2.1 * sA, cordeRacine: size.x * 0.4 * sA,
       couleur: def(id).color, emissif: false, spanSign: sens, type: 'aigle',
     });
     m.position.set(cx - size.x * 0.04, min.y + size.y * 0.6, sens * size.z * 0.45);
@@ -7660,7 +7661,7 @@ function construireAddons() {
 
   [[-1, 'aileWingletG'], [1, 'aileWingletD']].forEach(([sens, id]) => {
     const m = creerAileMesh({
-      envergure: size.z * 2.15, cordeRacine: size.x * 0.4,
+      envergure: size.z * 2.15 * sA, cordeRacine: size.x * 0.4 * sA,
       couleur: def(id).color, emissif: false, spanSign: sens, type: 'avion', winglet: true,
     });
     m.position.set(cx - size.x * 0.1, min.y + size.y * 0.54, sens * size.z * 0.46);
@@ -7670,7 +7671,7 @@ function construireAddons() {
 
   [[-1, 'aileBiplanG'], [1, 'aileBiplanD']].forEach(([sens, id]) => {
     const m = creerAileBiplan({
-      envergure: size.z * 1.85, cordeRacine: size.x * 0.34,
+      envergure: size.z * 1.85 * sA, cordeRacine: size.x * 0.34 * sA,
       couleur: def(id).color, emissif: false, spanSign: sens,
     });
     m.position.set(cx - size.x * 0.1, min.y + size.y * 0.5, sens * size.z * 0.43);
@@ -7680,7 +7681,7 @@ function construireAddons() {
 
   [[-1, 'aileChauveSourisG'], [1, 'aileChauveSourisD']].forEach(([sens, id]) => {
     const m = creerAileChauveSouris({
-      envergure: size.z * 2.0, cordeRacine: size.x * 0.36,
+      envergure: size.z * 2.0 * sA, cordeRacine: size.x * 0.36 * sA,
       couleur: def(id).color, emissif: false, spanSign: sens,
     });
     m.position.set(cx - size.x * 0.04, min.y + size.y * 0.64, sens * size.z * 0.42);
@@ -7691,7 +7692,7 @@ function construireAddons() {
 
   [[-1, 'ailePapillonG'], [1, 'ailePapillonD']].forEach(([sens, id]) => {
     const m = creerAilePapillon({
-      envergure: size.z * 1.6, cordeRacine: size.x * 0.3,
+      envergure: size.z * 1.6 * sA, cordeRacine: size.x * 0.3 * sA,
       couleur: def(id).color, emissif: false, spanSign: sens,
     });
     m.position.set(cx, min.y + size.y * 0.66, sens * size.z * 0.4);
