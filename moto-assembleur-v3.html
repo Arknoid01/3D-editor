@@ -5932,9 +5932,9 @@
   input[type="range"] { width: 100%; accent-color: var(--cyan); background: transparent; }
   input[type="text"] { width: 100%; padding: 8px 10px; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }
   input[type="color"] { width: 44px; height: 30px; border: 1px solid var(--line); border-radius: 6px; background: none; padding: 2px; flex-shrink: 0; cursor: pointer; }
-  .ligne-addon { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 6px 8px; border-radius: 6px; background: var(--bg); }
+  .ligne-addon { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 6px 8px; border-radius: 6px; background: var(--bg); cursor: pointer; }
   .ligne-addon input[type="checkbox"] { accent-color: var(--cyan); width: 18px; height: 18px; flex-shrink: 0; cursor: pointer; }
-  .ligne-addon .nom { font-size: 12.5px; flex: 1; min-width: 0; }
+  .ligne-addon .nom { font-size: 12.5px; flex: 1; min-width: 0; cursor: pointer; user-select: none; }
   .note { font-size: 11px; color: var(--text-dim); line-height: 1.5; margin: 4px 0 8px; }
   .ligne-couleur { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 8px; border-radius: 6px; background: var(--bg); }
   .ligne-couleur .nom { flex: 1; font-size: 12.5px; }
@@ -6151,6 +6151,25 @@ const COULEURS_CARROSSERIE = [
 // ---------------------------------------------------------------------
 // Construction du panneau (tuiles rétractables)
 // ---------------------------------------------------------------------
+function basculerPiece(id) {
+  const chk = document.getElementById('chk-' + id);
+  if (!chk) return;
+  chk.checked = !chk.checked;
+  chk.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+function afficherErreurCatalogue() {
+  const panel = document.getElementById('panel');
+  panel.innerHTML = `
+    <div class="tuile ouverte">
+      <button type="button" class="tuile-titre">Catalogue indisponible</button>
+      <div class="tuile-contenu">
+        <p class="note">Impossible de charger <code>catalog.json</code>. L'assembleur doit être servi via HTTP :</p>
+        <p class="note"><code>python3 api-server.py</code><br>→ <code>http://localhost:8765/moto-assembleur-v3.html</code></p>
+      </div>
+    </div>`;
+}
+
 function construirePanneau() {
   const panel = document.getElementById('panel');
   panel.innerHTML = '';
@@ -6241,7 +6260,11 @@ function construirePanneau() {
         const ligne = document.createElement('div');
         ligne.className = 'ligne-addon';
         ligne.dataset.addonId = a.id;
-        ligne.innerHTML = '<input type="checkbox" id="chk-' + a.id + '"><button type="button" class="btn-select" data-select="' + a.id + '" title="Sélectionner">✥</button><span class="nom">' + a.label + '</span><input type="color" id="col-' + a.id + '" value="' + a.color + '">';
+        ligne.innerHTML = '<input type="checkbox" id="chk-' + a.id + '"><button type="button" class="btn-select" data-select="' + a.id + '" title="Sélectionner">✥</button><label class="nom" for="chk-' + a.id + '">' + a.label + '</label><input type="color" id="col-' + a.id + '" value="' + a.color + '">';
+        ligne.addEventListener('click', (e) => {
+          if (e.target.closest('.btn-select') || e.target.matches('input[type="color"]') || e.target.matches('input[type="checkbox"]') || e.target.closest('label.nom')) return;
+          basculerPiece(a.id);
+        });
         contenu.appendChild(ligne);
       });
     }
@@ -6990,7 +7013,8 @@ loader.parse(arrayBuffer, '', (gltf) => {
 
   assemblage.add(bikeModel);
   loadingEl.style.display = 'none';
-  document.getElementById('btnExport').disabled = false;
+  const btnExport = document.getElementById('btnExport');
+  if (btnExport) btnExport.disabled = false;
   appliquerCouleursCarrosserie();
   catalogReady.then(() => {
     construireAddons();
@@ -8249,6 +8273,7 @@ const presetsReady = fetch('presets.json').then(r => r.json()).then(p => {
 
 Promise.all([catalogReady, presetsReady]).then(([cat]) => {
   if (cat) construirePanneau();
+  else afficherErreurCatalogue();
 });
 
 function boundsToPlain() {
