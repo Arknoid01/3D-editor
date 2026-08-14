@@ -6099,6 +6099,7 @@ const SECTIONS_UI = [
   { id: 'mecanique', titre: 'Mécanique', ouverte: false },
   { id: 'eclairage', titre: 'Éclairage & néons', ouverte: false },
   { id: 'details', titre: 'Détails & rétros', ouverte: false },
+  { id: 'formes', titre: 'Formes & déco libre', ouverte: false },
   { id: 'edition', titre: 'Édition pièce', ouverte: true },
   { id: 'reglages', titre: 'Réglages & export', ouverte: false },
 ];
@@ -6135,6 +6136,25 @@ const ADDONS_CATALOG = [
   { id: 'poigneeG', section: 'details', label: 'Poignée G', color: '#00d9ff', emissive: false },
   { id: 'poigneeD', section: 'details', label: 'Poignée D', color: '#00d9ff', emissive: false },
   { id: 'plaque', section: 'details', label: 'Support plaque', color: '#cccccc', emissive: false },
+  { id: 'triangleG', section: 'formes', label: 'Triangle G', color: '#8844ff', emissive: false },
+  { id: 'triangleD', section: 'formes', label: 'Triangle D', color: '#8844ff', emissive: false },
+  { id: 'triangleAv', section: 'formes', label: 'Triangle avant', color: '#ff8800', emissive: false },
+  { id: 'triangleAr', section: 'formes', label: 'Triangle arrière', color: '#ff8800', emissive: false },
+  { id: 'aileronXlG', section: 'formes', label: 'Grand aileron G', color: '#00d9ff', emissive: false },
+  { id: 'aileronXlD', section: 'formes', label: 'Grand aileron D', color: '#00d9ff', emissive: false },
+  { id: 'aileDelta', section: 'formes', label: 'Aile delta', color: '#ff00aa', emissive: false },
+  { id: 'voileG', section: 'formes', label: 'Voile G', color: '#aaff00', emissive: false },
+  { id: 'voileD', section: 'formes', label: 'Voile D', color: '#aaff00', emissive: false },
+  { id: 'pyramide', section: 'formes', label: 'Pyramide', color: '#ff8800', emissive: false },
+  { id: 'cubeDeco', section: 'formes', label: 'Cube', color: '#444c5a', emissive: false },
+  { id: 'sphereDeco', section: 'formes', label: 'Sphère', color: '#8844ff', emissive: false },
+  { id: 'coneSpike', section: 'formes', label: 'Pic / cône', color: '#cc2222', emissive: false },
+  { id: 'hexPlate', section: 'formes', label: 'Hexagone', color: '#00d9ff', emissive: false },
+  { id: 'anneauDeco', section: 'formes', label: 'Anneau néon', color: '#ff00aa', emissive: true },
+  { id: 'lameDeco', section: 'formes', label: 'Lame', color: '#f0f0f0', emissive: false },
+  { id: 'croixDeco', section: 'formes', label: 'Croix', color: '#cc2222', emissive: false },
+  { id: 'prisme', section: 'formes', label: 'Prisme', color: '#444c5a', emissive: false },
+  { id: 'etoileDeco', section: 'formes', label: 'Étoile néon', color: '#aaff00', emissive: true },
 ];
 
 const COULEURS_CARROSSERIE = [
@@ -6855,6 +6875,44 @@ function creerMateriau(couleur, emissif) {
   return new THREE.MeshStandardMaterial({ color: c, roughness: 0.4, metalness: 0.35 });
 }
 
+function creerTrianglePlat(largeur, hauteur, epaisseur, couleur, emissif) {
+  const s = new THREE.Shape();
+  s.moveTo(-largeur / 2, 0);
+  s.lineTo(largeur / 2, 0);
+  s.lineTo(0, hauteur);
+  s.closePath();
+  const g = new THREE.ExtrudeGeometry(s, { depth: epaisseur, bevelEnabled: false });
+  g.center();
+  return new THREE.Mesh(g, creerMateriau(couleur, emissif));
+}
+
+function creerCroix(largeur, epaisseur, profondeur, couleur, emissif) {
+  const t = largeur * 0.28;
+  const s = new THREE.Shape();
+  s.moveTo(-t, -largeur); s.lineTo(t, -largeur); s.lineTo(t, -t); s.lineTo(largeur, -t);
+  s.lineTo(largeur, t); s.lineTo(t, t); s.lineTo(t, largeur); s.lineTo(-t, largeur);
+  s.lineTo(-t, t); s.lineTo(-largeur, t); s.lineTo(-largeur, -t); s.lineTo(-t, -t);
+  s.closePath();
+  const g = new THREE.ExtrudeGeometry(s, { depth: profondeur, bevelEnabled: false });
+  g.center();
+  return new THREE.Mesh(g, creerMateriau(couleur, emissif));
+}
+
+function creerEtoile(rayon, epaisseur, couleur, emissif) {
+  const s = new THREE.Shape();
+  const branches = 5;
+  for (let i = 0; i < branches * 2; i++) {
+    const r = i % 2 === 0 ? rayon : rayon * 0.42;
+    const a = (i / (branches * 2)) * Math.PI * 2 - Math.PI / 2;
+    const x = Math.cos(a) * r, y = Math.sin(a) * r;
+    if (i === 0) s.moveTo(x, y); else s.lineTo(x, y);
+  }
+  s.closePath();
+  const g = new THREE.ExtrudeGeometry(s, { depth: epaisseur, bevelEnabled: false });
+  g.center();
+  return new THREE.Mesh(g, creerMateriau(couleur, emissif));
+}
+
 function ajouterPiece(id, mesh) {
   const def = ADDONS_CATALOG.find(a => a.id === id);
   const pivot = new THREE.Group();
@@ -7015,6 +7073,87 @@ function construireAddons() {
   const plaque = new THREE.Mesh(new THREE.BoxGeometry(size.x * 0.1, size.y * 0.06, 0.008), creerMateriau(def('plaque').color, false));
   plaque.position.set(min.x + size.x * 0.08, min.y + size.y * 0.35, 0);
   ajouterPiece('plaque', plaque);
+
+  // Formes & déco libre
+  [[-1, 'triangleG', 'decoLeftHigh'], [1, 'triangleD', 'decoRightHigh']].forEach(([sens, id]) => {
+    const m = creerTrianglePlat(size.x * 0.2, size.y * 0.22, 0.015, def(id).color, false);
+    m.position.set(min.x + size.x * 0.35, min.y + size.y * 0.82, sens * (size.z * 0.52 + 0.04));
+    m.rotation.y = sens * 0.4; m.rotation.z = sens * 0.2;
+    ajouterPiece(id, m);
+  });
+
+  const triangleAv = creerTrianglePlat(size.x * 0.14, size.y * 0.18, 0.012, def('triangleAv').color, false);
+  triangleAv.position.set(max.x - size.x * 0.04, min.y + size.y * 0.65, 0);
+  triangleAv.rotation.z = -0.35;
+  ajouterPiece('triangleAv', triangleAv);
+
+  const triangleAr = creerTrianglePlat(size.x * 0.16, size.y * 0.2, 0.012, def('triangleAr').color, false);
+  triangleAr.position.set(min.x + size.x * 0.04, min.y + size.y * 0.65, 0);
+  triangleAr.rotation.z = 0.15;
+  ajouterPiece('triangleAr', triangleAr);
+
+  [[-1, 'aileronXlG'], [1, 'aileronXlD']].forEach(([sens, id]) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(size.x * 0.38, size.y * 0.06, 0.012), creerMateriau(def(id).color, false));
+    m.position.set(min.x + size.x * 0.32, min.y + size.y * 0.78, sens * (size.z * 0.55 + 0.05));
+    m.rotation.y = sens * 0.55; m.rotation.z = sens * 0.35;
+    ajouterPiece(id, m);
+  });
+
+  const aileDelta = new THREE.Mesh(new THREE.BoxGeometry(size.x * 0.45, 0.01, size.z * 0.55), creerMateriau(def('aileDelta').color, false));
+  aileDelta.position.set(min.x + size.x * 0.08, min.y + size.y * 0.68, 0);
+  aileDelta.rotation.x = 0.12;
+  ajouterPiece('aileDelta', aileDelta);
+
+  [[-1, 'voileG'], [1, 'voileD']].forEach(([sens, id]) => {
+    const m = creerTrianglePlat(size.x * 0.28, size.y * 0.35, 0.008, def(id).color, false);
+    m.position.set(cx, min.y + size.y * 0.55, sens * (size.z * 0.52 + 0.06));
+    m.rotation.y = sens * 0.35;
+    ajouterPiece(id, m);
+  });
+
+  const pyramide = new THREE.Mesh(new THREE.ConeGeometry(size.x * 0.08, size.y * 0.2, 4), creerMateriau(def('pyramide').color, false));
+  pyramide.position.set(cx, min.y + size.y * 0.95, 0);
+  ajouterPiece('pyramide', pyramide);
+
+  const cubeDeco = new THREE.Mesh(new THREE.BoxGeometry(size.x * 0.1, size.y * 0.1, size.z * 0.1), creerMateriau(def('cubeDeco').color, false));
+  cubeDeco.position.set(cx, cy, 0);
+  ajouterPiece('cubeDeco', cubeDeco);
+
+  const sphereDeco = new THREE.Mesh(new THREE.SphereGeometry(size.x * 0.07, 12, 10), creerMateriau(def('sphereDeco').color, false));
+  sphereDeco.position.set(cx, min.y + size.y * 0.92, size.z * 0.15);
+  ajouterPiece('sphereDeco', sphereDeco);
+
+  const coneSpike = new THREE.Mesh(new THREE.ConeGeometry(size.x * 0.04, size.y * 0.28, 8), creerMateriau(def('coneSpike').color, false));
+  coneSpike.position.set(min.x + size.x * 0.5, min.y + size.y * 0.98, 0);
+  ajouterPiece('coneSpike', coneSpike);
+
+  const hexPlate = new THREE.Mesh(new THREE.CylinderGeometry(size.x * 0.09, size.x * 0.09, 0.012, 6), creerMateriau(def('hexPlate').color, false));
+  hexPlate.rotation.x = Math.PI / 2;
+  hexPlate.position.set(max.x - size.x * 0.06, min.y + size.y * 0.58, 0);
+  ajouterPiece('hexPlate', hexPlate);
+
+  const anneauDeco = new THREE.Mesh(new THREE.TorusGeometry(size.x * 0.08, 0.01, 8, 24), creerMateriau(def('anneauDeco').color, true));
+  anneauDeco.position.set(max.x - size.x * 0.1, min.y + size.y * 0.72, 0);
+  anneauDeco.rotation.y = Math.PI / 2;
+  ajouterPiece('anneauDeco', anneauDeco);
+
+  const lameDeco = new THREE.Mesh(new THREE.BoxGeometry(size.x * 0.45, 0.008, size.z * 0.06), creerMateriau(def('lameDeco').color, false));
+  lameDeco.position.set(cx - size.x * 0.05, min.y + size.y * 0.48, -(size.z * 0.52 + 0.04));
+  lameDeco.rotation.y = 0.25; lameDeco.rotation.z = -0.15;
+  ajouterPiece('lameDeco', lameDeco);
+
+  const croixDeco = creerCroix(size.x * 0.07, 0.012, 0.012, def('croixDeco').color, false);
+  croixDeco.position.set(min.x + size.x * 0.06, min.y + size.y * 0.58, 0);
+  ajouterPiece('croixDeco', croixDeco);
+
+  const prisme = creerTrianglePlat(size.x * 0.2, size.y * 0.12, size.z * 0.25, def('prisme').color, false);
+  prisme.position.set(cx, min.y + size.y * 0.1, 0);
+  prisme.rotation.x = Math.PI / 2;
+  ajouterPiece('prisme', prisme);
+
+  const etoileDeco = creerEtoile(size.x * 0.07, 0.012, def('etoileDeco').color, true);
+  etoileDeco.position.set(cx, min.y + size.y * 0.88, -size.z * 0.2);
+  ajouterPiece('etoileDeco', etoileDeco);
 
   Object.values(addons).forEach(a => { if (a.colle) collerSurMoto(a.pivot); });
 }

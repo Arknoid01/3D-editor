@@ -205,6 +205,60 @@
           "anchor": { "x": 0.5, "y": 0.15, "z": 0.35 },
           "rotation": [0, 0, 0],
           "tags": ["underside", "engine", "chain"]
+        },
+        "decoTop": {
+          "id": "decoTop",
+          "anchor": { "x": 0.5, "y": 0.95, "z": 0.5 },
+          "rotation": [0, 0, 0],
+          "tags": ["deco", "shape", "top"]
+        },
+        "decoFront": {
+          "id": "decoFront",
+          "anchor": { "x": 0.98, "y": 0.65, "z": 0.5 },
+          "rotation": [0, 0, 0],
+          "tags": ["deco", "shape", "front"]
+        },
+        "decoRear": {
+          "id": "decoRear",
+          "anchor": { "x": 0.02, "y": 0.65, "z": 0.5 },
+          "rotation": [0, 0, 0],
+          "tags": ["deco", "shape", "rear"]
+        },
+        "decoLeft": {
+          "id": "decoLeft",
+          "anchor": { "x": 0.5, "y": 0.55, "z": 0.0 },
+          "rotation": [0, 0.3, 0],
+          "tags": ["deco", "shape", "side", "left"]
+        },
+        "decoRight": {
+          "id": "decoRight",
+          "anchor": { "x": 0.5, "y": 0.55, "z": 1.0 },
+          "rotation": [0, -0.3, 0],
+          "tags": ["deco", "shape", "side", "right"]
+        },
+        "decoLeftHigh": {
+          "id": "decoLeftHigh",
+          "anchor": { "x": 0.35, "y": 0.82, "z": 0.05 },
+          "rotation": [0, 0.4, 0.2],
+          "tags": ["deco", "shape", "side", "wing", "left"]
+        },
+        "decoRightHigh": {
+          "id": "decoRightHigh",
+          "anchor": { "x": 0.35, "y": 0.82, "z": 0.95 },
+          "rotation": [0, -0.4, 0.2],
+          "tags": ["deco", "shape", "side", "wing", "right"]
+        },
+        "decoUnder": {
+          "id": "decoUnder",
+          "anchor": { "x": 0.5, "y": 0.08, "z": 0.5 },
+          "rotation": [0, 0, 0],
+          "tags": ["deco", "shape", "underside"]
+        },
+        "decoCenter": {
+          "id": "decoCenter",
+          "anchor": { "x": 0.5, "y": 0.5, "z": 0.5 },
+          "rotation": [0, 0, 0],
+          "tags": ["deco", "shape", "free"]
         }
       }
     }
@@ -581,6 +635,234 @@
       "allowedScale": [0.5, 1.8],
       "defaultColor": "white",
       "emissive": false
+    },
+    "triangleG": {
+      "id": "triangleG",
+      "name": "Triangle G",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "side", "left", "wing"],
+      "defaultSocket": "decoLeftHigh",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.35, 0.35], "y": [-0.35, 0.35], "z": [-0.35, 0.35] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "violet",
+      "emissive": false
+    },
+    "triangleD": {
+      "id": "triangleD",
+      "name": "Triangle D",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "side", "right", "wing"],
+      "defaultSocket": "decoRightHigh",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.35, 0.35], "y": [-0.35, 0.35], "z": [-0.35, 0.35] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "violet",
+      "emissive": false
+    },
+    "triangleAv": {
+      "id": "triangleAv",
+      "name": "Triangle avant",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "front"],
+      "defaultSocket": "decoFront",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.35, 0.35], "y": [-0.35, 0.35], "z": [-0.35, 0.35] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "orange",
+      "emissive": false
+    },
+    "triangleAr": {
+      "id": "triangleAr",
+      "name": "Triangle arrière",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "rear"],
+      "defaultSocket": "decoRear",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.35, 0.35], "y": [-0.35, 0.35], "z": [-0.35, 0.35] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "orange",
+      "emissive": false
+    },
+    "aileronXlG": {
+      "id": "aileronXlG",
+      "name": "Grand aileron G",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "side", "wing", "left"],
+      "defaultSocket": "decoLeftHigh",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.4, 0.4], "y": [-0.4, 0.4], "z": [-0.4, 0.4] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "cyan",
+      "emissive": false
+    },
+    "aileronXlD": {
+      "id": "aileronXlD",
+      "name": "Grand aileron D",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "side", "wing", "right"],
+      "defaultSocket": "decoRightHigh",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.4, 0.4], "y": [-0.4, 0.4], "z": [-0.4, 0.4] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "cyan",
+      "emissive": false
+    },
+    "aileDelta": {
+      "id": "aileDelta",
+      "name": "Aile delta",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "rear", "wing"],
+      "defaultSocket": "decoRear",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.4, 0.4], "y": [-0.4, 0.4], "z": [-0.4, 0.4] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "magenta",
+      "emissive": false
+    },
+    "voileG": {
+      "id": "voileG",
+      "name": "Voile G",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "side", "left"],
+      "defaultSocket": "decoLeft",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.4, 0.4], "y": [-0.4, 0.4], "z": [-0.4, 0.4] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "lime",
+      "emissive": false
+    },
+    "voileD": {
+      "id": "voileD",
+      "name": "Voile D",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "side", "right"],
+      "defaultSocket": "decoRight",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.4, 0.4], "y": [-0.4, 0.4], "z": [-0.4, 0.4] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "lime",
+      "emissive": false
+    },
+    "pyramide": {
+      "id": "pyramide",
+      "name": "Pyramide",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "top"],
+      "defaultSocket": "decoTop",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.35, 0.35], "y": [-0.35, 0.35], "z": [-0.35, 0.35] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "orange",
+      "emissive": false
+    },
+    "cubeDeco": {
+      "id": "cubeDeco",
+      "name": "Cube",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "free"],
+      "defaultSocket": "decoCenter",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.5, 0.5], "y": [-0.5, 0.5], "z": [-0.5, 0.5] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "grey",
+      "emissive": false
+    },
+    "sphereDeco": {
+      "id": "sphereDeco",
+      "name": "Sphère",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "top", "free"],
+      "defaultSocket": "decoTop",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.35, 0.35], "y": [-0.35, 0.35], "z": [-0.35, 0.35] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "violet",
+      "emissive": false
+    },
+    "coneSpike": {
+      "id": "coneSpike",
+      "name": "Pic / cône",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "top"],
+      "defaultSocket": "decoTop",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.35, 0.35], "y": [-0.35, 0.35], "z": [-0.35, 0.35] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "red",
+      "emissive": false
+    },
+    "hexPlate": {
+      "id": "hexPlate",
+      "name": "Hexagone",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "front"],
+      "defaultSocket": "decoFront",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.35, 0.35], "y": [-0.35, 0.35], "z": [-0.35, 0.35] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "cyan",
+      "emissive": false
+    },
+    "anneauDeco": {
+      "id": "anneauDeco",
+      "name": "Anneau néon",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "front"],
+      "defaultSocket": "decoFront",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.35, 0.35], "y": [-0.35, 0.35], "z": [-0.35, 0.35] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "magenta",
+      "emissive": true
+    },
+    "lameDeco": {
+      "id": "lameDeco",
+      "name": "Lame",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "side", "left"],
+      "defaultSocket": "decoLeft",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.4, 0.4], "y": [-0.4, 0.4], "z": [-0.4, 0.4] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "white",
+      "emissive": false
+    },
+    "croixDeco": {
+      "id": "croixDeco",
+      "name": "Croix",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "rear"],
+      "defaultSocket": "decoRear",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.35, 0.35], "y": [-0.35, 0.35], "z": [-0.35, 0.35] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "red",
+      "emissive": false
+    },
+    "prisme": {
+      "id": "prisme",
+      "name": "Prisme",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "underside"],
+      "defaultSocket": "decoUnder",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.4, 0.4], "y": [-0.4, 0.4], "z": [-0.4, 0.4] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "grey",
+      "emissive": false
+    },
+    "etoileDeco": {
+      "id": "etoileDeco",
+      "name": "Étoile",
+      "section": "formes",
+      "compatibleTags": ["deco", "shape", "top", "free"],
+      "defaultSocket": "decoTop",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.35, 0.35], "y": [-0.35, 0.35], "z": [-0.35, 0.35] },
+      "allowedScale": [0.3, 2.5],
+      "defaultColor": "lime",
+      "emissive": true
     }
   }
 }
