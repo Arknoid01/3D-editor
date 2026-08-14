@@ -5991,6 +5991,28 @@
   }
   .vue-controles .vide { pointer-events: none; }
   .vue-controles .gizmo-btn { font-size: 16px; font-weight: 700; }
+  .etages-controles {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    pointer-events: auto; padding: 6px; border-radius: 10px;
+    background: rgba(10,12,16,.78); border: 1px solid var(--line);
+    box-shadow: 0 4px 20px rgba(0,0,0,.45);
+  }
+  .etages-nav { display: flex; gap: 6px; align-items: center; }
+  .etages-nav .gizmo-btn { width: 36px; height: 28px; font-size: 13px; }
+  .etages-grille {
+    display: grid; grid-template-columns: repeat(3, 32px); gap: 3px;
+  }
+  .etages-grille .etage-cell {
+    width: 32px; height: 26px; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .etages-grille .etage-cell.actif {
+    background: rgba(0,217,255,.22); border-color: var(--cyan); color: var(--cyan);
+  }
+  .gizmo-etage-label {
+    font-size: 10px; color: var(--text-dim); text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
   #editionPiece .edition-controles { display: none; }
   #editionPiece.selection-active .edition-controles { display: block; }
   #editionPiece.selection-active .edition-vide { display: none; }
@@ -6048,6 +6070,15 @@
           <button type="button" class="gizmo-btn" data-vue="left" title="Tourner à gauche">←</button>
           <button type="button" class="gizmo-btn" data-vue="down" title="Vue vers le bas">↓</button>
           <button type="button" class="gizmo-btn" data-vue="right" title="Tourner à droite">→</button>
+        </div>
+        <span class="gizmo-titre">Hauteur</span>
+        <div class="etages-controles">
+          <div class="etages-nav">
+            <button type="button" class="gizmo-btn" id="btnEtageUp" title="Monter d'un étage">▲</button>
+            <span class="gizmo-etage-label" id="etageLabel">Étage 0</span>
+            <button type="button" class="gizmo-btn" id="btnEtageDown" title="Descendre d'un étage">▼</button>
+          </div>
+          <div class="etages-grille" id="etagesGrille"></div>
         </div>
       </div>
     </div>
@@ -6269,6 +6300,107 @@ scene.add(key);
 const rim = new THREE.DirectionalLight(0x00d9ff, 0.6);
 rim.position.set(-3, 2, -2);
 scene.add(rim);
+
+const ETAGE_COUNT = 6;
+const ETAGE_STEP = 0.18;
+let etagesY = [];
+let grillesEtages = [];
+const groupeEtages = new THREE.Group();
+groupeEtages.visible = false;
+scene.add(groupeEtages);
+
+function initialiserEtages() {
+  while (groupeEtages.children.length) groupeEtages.remove(groupeEtages.children[0]);
+  grillesEtages = [];
+  etagesY = [];
+  const baseY = bikeBounds ? bikeBounds.min.y : 0;
+  for (let i = 0; i < ETAGE_COUNT; i++) {
+    etagesY.push(baseY + i * ETAGE_STEP);
+    const grid = new THREE.GridHelper(10, 20, 0x1f2733, 0x161b22);
+    grid.position.y = etagesY[i];
+    const mats = Array.isArray(grid.material) ? grid.material : [grid.material];
+    mats.forEach(m => { m.transparent = true; m.opacity = 0.1; });
+    groupeEtages.add(grid);
+    grillesEtages.push(grid);
+  }
+}
+
+function etageLePlusProche(y) {
+  let meilleur = 0, dist = Infinity;
+  etagesY.forEach((ey, i) => {
+    const d = Math.abs(y - ey);
+    if (d < dist) { dist = d; meilleur = i; }
+  });
+  return meilleur;
+}
+
+function etageY(index) {
+  const i = Math.max(0, Math.min(ETAGE_COUNT - 1, index));
+  return etagesY[i] !== undefined ? etagesY[i] : 0;
+}
+
+function mettreAJourGrillesEtages(etageActif) {
+  grillesEtages.forEach((grid, i) => {
+    const actif = i === etageActif;
+    const mats = Array.isArray(grid.material) ? grid.material : [grid.material];
+    mats.forEach(m => {
+      m.transparent = true;
+      m.opacity = actif ? 0.42 : 0.08;
+      m.color.setHex(actif ? 0x00d9ff : 0x1f2733);
+    });
+  });
+}
+
+function mettreAJourHudEtage() {
+  if (!pieceSelectionnee || !addons[pieceSelectionnee]) return;
+  const etage = addons[pieceSelectionnee].etage || 0;
+  document.getElementById('etageLabel').textContent = 'Étage ' + etage;
+  document.querySelectorAll('.etage-cell').forEach(btn => {
+    btn.classList.toggle('actif', parseInt(btn.dataset.etage, 10) === etage);
+  });
+  mettreAJourGrillesEtages(etage);
+  groupeEtages.visible = true;
+}
+
+function definirEtagePiece(index) {
+  if (!pieceSelectionnee) return;
+  const addon = addons[pieceSelectionnee];
+  addon.etage = Math.max(0, Math.min(ETAGE_COUNT - 1, index));
+  addon.pivot.position.y = etageY(addon.etage);
+  addon.colle = false;
+  addon.flotter = true;
+  mettreAJourHudColle();
+  mettreAJourHudEtage();
+  mettreAJourHelperSelection();
+}
+
+function deplacerPieceEtage(delta) {
+  if (!pieceSelectionnee) return;
+  const addon = addons[pieceSelectionnee];
+  definirEtagePiece((addon.etage || 0) + delta);
+}
+
+function construireGrilleEtagesUI() {
+  const conteneur = document.getElementById('etagesGrille');
+  conteneur.innerHTML = '';
+  for (let i = ETAGE_COUNT - 1; i >= 0; i--) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'gizmo-btn etage-cell';
+    btn.dataset.etage = String(i);
+    btn.title = 'Étage ' + i;
+    btn.textContent = 'E' + i;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (pieceSelectionnee) definirEtagePiece(i);
+    });
+    conteneur.appendChild(btn);
+  }
+}
+construireGrilleEtagesUI();
+document.getElementById('btnEtageUp').addEventListener('click', (e) => { e.stopPropagation(); deplacerPieceEtage(1); });
+document.getElementById('btnEtageDown').addEventListener('click', (e) => { e.stopPropagation(); deplacerPieceEtage(-1); });
+
 scene.add(new THREE.GridHelper(10, 20, 0x1f2733, 0x161b22));
 
 let draggingCamera = false, lastX = 0, lastY = 0;
@@ -6319,6 +6451,7 @@ function selectionnerPiece(id) {
   document.getElementById('gizmoTitre').textContent = libellePiece(id);
   mettreAJourHudColle();
   mettreAJourHelperSelection();
+  mettreAJourHudEtage();
   gizmoHud.classList.add('visible');
   gizmoHud.setAttribute('aria-hidden', 'false');
 }
@@ -6331,6 +6464,7 @@ function deselectionnerPiece() {
   document.getElementById('editionPiece').classList.remove('selection-active');
   document.getElementById('editionMode').textContent = '—';
   if (helperSelection) { assemblage.remove(helperSelection); helperSelection = null; }
+  groupeEtages.visible = false;
   gizmoHud.classList.remove('visible');
   gizmoHud.setAttribute('aria-hidden', 'true');
 }
@@ -6407,6 +6541,7 @@ function reinitialiserPiece(id) {
   addon.scaleMul = 1;
   addon.colle = true;
   addon.flotter = false;
+  addon.etage = etageLePlusProche(addon.basePosition.y);
   mettreAJourHudColle();
   rafraichirAddons();
   collerSurMoto(addon.pivot);
@@ -6444,6 +6579,11 @@ function collerSurMoto(pivot) {
   const cible = meilleur.point.clone().add(normale.multiplyScalar(0.01));
   if (pivot.parent) pivot.parent.worldToLocal(cible);
   pivot.position.copy(cible);
+  const addon = Object.values(addons).find(a => a.pivot === pivot);
+  if (addon) {
+    addon.etage = etageLePlusProche(pivot.position.y);
+    mettreAJourHudEtage();
+  }
 }
 
 function pieceSousPointeur() {
@@ -6488,6 +6628,8 @@ function appliquerDragTransform(e) {
     raycaster.setFromCamera(pointeur, camera);
     if (raycaster.ray.intersectPlane(planDrag, intersectionDrag)) {
       addon.pivot.position.copy(intersectionDrag.clone().add(offsetDrag));
+      addon.etage = etageLePlusProche(addon.pivot.position.y);
+      mettreAJourHudEtage();
       if (addon.colle) collerSurMoto(addon.pivot);
     }
   } else if (modeTransform === 'rotate') {
@@ -6682,6 +6824,7 @@ loader.parse(arrayBuffer, '', (gltf) => {
   bikeModel.updateMatrixWorld(true);
 
   bikeBounds = new THREE.Box3().setFromObject(bikeModel);
+  initialiserEtages();
   bikeMeshes = [];
   bikeModel.traverse(o => {
     if (o.isMesh && o.material) {
@@ -6735,6 +6878,7 @@ function ajouterPiece(id, mesh) {
     colle: true,
     flotter: false,
     scaleMul: 1,
+    etage: 0,
   };
   assemblage.add(pivot);
 }
@@ -6965,6 +7109,7 @@ function appliquerAssemblageIA(config) {
     addon.pivot.rotation.set(p.rotation.x, p.rotation.y, p.rotation.z);
     addon.scaleMul = p.scale;
     addon.colle = p.colle;
+    addon.etage = etageLePlusProche(p.position.y);
     addon.basePosition.copy(addon.pivot.position);
     addon.baseRotation.copy(addon.pivot.rotation);
   });
