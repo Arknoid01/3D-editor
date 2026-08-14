@@ -5945,6 +5945,43 @@
   }
   .btn-action:hover { background: #33e2ff; }
   .btn-action:disabled { opacity: 0.4; cursor: default; }
+  .btn-action.secondaire { background: transparent; color: var(--cyan); border: 1px solid var(--cyan-dim); margin-top: 8px; }
+  .btn-action.secondaire:hover { background: rgba(0,217,255,.08); }
+  .btn-action.secondaire.actif { background: rgba(0,217,255,.15); border-color: var(--cyan); }
+  .btn-select {
+    width: 30px; height: 30px; flex-shrink: 0; padding: 0; border-radius: 6px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--text-dim);
+    cursor: pointer; font-size: 14px; line-height: 1;
+  }
+  .btn-select:hover, .btn-select.actif { border-color: var(--cyan); color: var(--cyan); background: rgba(0,217,255,.08); }
+  .ligne-addon.selectionnee { outline: 1px solid var(--cyan); background: rgba(0,217,255,.06); }
+  #gizmoHud {
+    position: absolute; z-index: 12; transform: translate(-50%, -50%);
+    display: none; flex-direction: column; align-items: center; gap: 6px;
+    pointer-events: none;
+  }
+  #gizmoHud.visible { display: flex; }
+  .gizmo-cross {
+    display: grid; grid-template-columns: repeat(3, 34px); grid-template-rows: repeat(3, 34px);
+    gap: 2px; pointer-events: auto; padding: 4px; border-radius: 10px;
+    background: rgba(10,12,16,.78); border: 1px solid var(--line);
+    box-shadow: 0 4px 20px rgba(0,0,0,.45);
+  }
+  .gizmo-cross .vide { pointer-events: none; }
+  .gizmo-btn {
+    width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line);
+    background: rgba(18,22,29,.92); color: var(--text); font-size: 15px;
+    cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(6px);
+  }
+  .gizmo-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+  .gizmo-btn.actif { background: rgba(0,217,255,.18); border-color: var(--cyan); color: var(--cyan); }
+  .gizmo-actions { display: flex; gap: 6px; pointer-events: auto; }
+  .gizmo-actions .gizmo-btn { width: auto; min-width: 38px; padding: 0 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; }
+  .gizmo-actions .gizmo-btn.actif { box-shadow: 0 0 0 1px var(--cyan); }
+  #editionPiece .edition-controles { display: none; }
+  #editionPiece.selection-active .edition-controles { display: block; }
+  #editionPiece.selection-active .edition-vide { display: none; }
   @media (min-width: 769px) {
     header .credit { display: block; }
     #panel { position: relative; z-index: 1; }
@@ -5973,7 +6010,24 @@
   <div id="main">
     <div id="viewport">
       <div id="loading">Chargement du modèle…</div>
-      <div id="hint">glisser = tourner · pincer = zoom</div>
+      <div id="hint">glisser = tourner · pincer = zoom · tap pièce = sélectionner</div>
+      <div id="gizmoHud" aria-hidden="true">
+        <div class="gizmo-cross">
+          <span class="vide"></span>
+          <button type="button" class="gizmo-btn" data-mode="move" title="Déplacer">✥</button>
+          <span class="vide"></span>
+          <button type="button" class="gizmo-btn" data-mode="rotate" title="Pivoter">↻</button>
+          <span class="vide" style="display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--cyan);">+</span>
+          <button type="button" class="gizmo-btn" data-mode="scale" title="Redimensionner">⤢</button>
+          <span class="vide"></span>
+          <span class="vide"></span>
+          <span class="vide"></span>
+        </div>
+        <div class="gizmo-actions">
+          <button type="button" class="gizmo-btn" id="btnColler" title="Coller sur la moto">Coller</button>
+          <button type="button" class="gizmo-btn" id="btnFlotter" title="Laisser flotter">Flotter</button>
+        </div>
+      </div>
     </div>
     <div id="panelOverlay" aria-hidden="true"></div>
     <aside id="panel" aria-label="Options de personnalisation"></aside>
@@ -5991,6 +6045,7 @@ const SECTIONS_UI = [
   { id: 'mecanique', titre: 'Mécanique', ouverte: false },
   { id: 'eclairage', titre: 'Éclairage & néons', ouverte: false },
   { id: 'details', titre: 'Détails & rétros', ouverte: false },
+  { id: 'edition', titre: 'Édition pièce', ouverte: true },
   { id: 'reglages', titre: 'Réglages & export', ouverte: false },
 ];
 
@@ -6065,6 +6120,25 @@ function construirePanneau() {
         ligne.innerHTML = '<span class="nom">' + c.label + '</span><input type="color" id="col-' + c.id + '" value="' + c.value + '">';
         contenu.appendChild(ligne);
       });
+    } else if (sec.id === 'edition') {
+      contenu.innerHTML = `
+        <div id="editionPiece">
+          <p class="note edition-vide">Sélectionnez une pièce dans la liste ou touchez-la sur la moto.</p>
+          <div class="edition-controles">
+            <p class="note" id="editionNom"></p>
+            <div class="champ">
+              <label>Mode</label>
+              <span class="val" id="editionMode">—</span>
+            </div>
+            <div class="champ">
+              <label>Taille individuelle <span class="val" id="v-taillePiece">1</span></label>
+              <input type="range" id="taillePiece" min="0.3" max="2.5" step="0.05" value="1">
+            </div>
+            <button type="button" class="btn-action secondaire" id="btnCollerPanel">Coller sur la moto</button>
+            <button type="button" class="btn-action secondaire" id="btnFlotterPanel">Laisser flotter</button>
+            <button type="button" class="btn-action secondaire" id="btnResetPiece">Réinitialiser position</button>
+          </div>
+        </div>`;
     } else if (sec.id === 'reglages') {
       contenu.innerHTML = `
         <div class="champ">
@@ -6080,7 +6154,8 @@ function construirePanneau() {
       ADDONS_CATALOG.filter(a => a.section === sec.id).forEach(a => {
         const ligne = document.createElement('div');
         ligne.className = 'ligne-addon';
-        ligne.innerHTML = '<input type="checkbox" id="chk-' + a.id + '"><span class="nom">' + a.label + '</span><input type="color" id="col-' + a.id + '" value="' + a.color + '">';
+        ligne.dataset.addonId = a.id;
+        ligne.innerHTML = '<input type="checkbox" id="chk-' + a.id + '"><button type="button" class="btn-select" data-select="' + a.id + '" title="Sélectionner">✥</button><span class="nom">' + a.label + '</span><input type="color" id="col-' + a.id + '" value="' + a.color + '">';
         contenu.appendChild(ligne);
       });
     }
@@ -6095,14 +6170,32 @@ function construirePanneau() {
   ADDONS_CATALOG.forEach(a => {
     const chk = document.getElementById('chk-' + a.id);
     const col = document.getElementById('col-' + a.id);
-    if (chk) chk.addEventListener('change', rafraichirAddons);
+    const sel = document.querySelector('[data-select="' + a.id + '"]');
+    if (chk) chk.addEventListener('change', () => { rafraichirAddons(); if (chk.checked) selectionnerPiece(a.id); });
     if (col) col.addEventListener('input', rafraichirAddons);
+    if (sel) sel.addEventListener('click', (e) => { e.stopPropagation(); selectionnerPiece(a.id); });
   });
   document.getElementById('echelleAddons').addEventListener('input', () => {
     document.getElementById('v-echelleAddons').textContent = document.getElementById('echelleAddons').value;
     rafraichirAddons();
   });
   document.getElementById('btnExport').addEventListener('click', exporterGlb);
+  document.getElementById('taillePiece').addEventListener('input', () => {
+    if (!pieceSelectionnee) return;
+    const addon = addons[pieceSelectionnee];
+    addon.scaleMul = parseFloat(document.getElementById('taillePiece').value);
+    document.getElementById('v-taillePiece').textContent = document.getElementById('taillePiece').value;
+    rafraichirAddons();
+  });
+  document.getElementById('btnCollerPanel').addEventListener('click', () => {
+    if (pieceSelectionnee) activerColle(pieceSelectionnee, true);
+  });
+  document.getElementById('btnFlotterPanel').addEventListener('click', () => {
+    if (pieceSelectionnee) activerColle(pieceSelectionnee, false);
+  });
+  document.getElementById('btnResetPiece').addEventListener('click', () => {
+    if (pieceSelectionnee) reinitialiserPiece(pieceSelectionnee);
+  });
 }
 construirePanneau();
 
@@ -6155,9 +6248,234 @@ rim.position.set(-3, 2, -2);
 scene.add(rim);
 scene.add(new THREE.GridHelper(10, 20, 0x1f2733, 0x161b22));
 
-let dragging = false, lastX = 0, lastY = 0;
+let draggingCamera = false, lastX = 0, lastY = 0;
 let camAngleY = 0.7, camAngleX = 0.3, camDist = 3.6;
 let pinchDist = 0;
+
+// Sélection & transformation des pièces
+const raycaster = new THREE.Raycaster();
+const pointeur = new THREE.Vector2();
+const planDrag = new THREE.Plane();
+const intersectionDrag = new THREE.Vector3();
+const offsetDrag = new THREE.Vector3();
+let pieceSelectionnee = null;
+let modeTransform = null; // 'move' | 'rotate' | 'scale'
+let dragTransform = false;
+let dragStartX = 0, dragStartY = 0;
+let valeurDragDepart = null;
+let helperSelection = null;
+
+const gizmoHud = document.getElementById('gizmoHud');
+const btnColler = document.getElementById('btnColler');
+const btnFlotter = document.getElementById('btnFlotter');
+
+function mettreAJourPointeur(e) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointeur.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  pointeur.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+}
+
+function libellePiece(id) {
+  const def = ADDONS_CATALOG.find(a => a.id === id);
+  return def ? def.label : id;
+}
+
+function selectionnerPiece(id) {
+  if (!addons[id]) return;
+  const chk = document.getElementById('chk-' + id);
+  if (chk && !chk.checked) { chk.checked = true; rafraichirAddons(); }
+  pieceSelectionnee = id;
+  document.querySelectorAll('.ligne-addon').forEach(l => {
+    l.classList.toggle('selectionnee', l.dataset.addonId === id);
+  });
+  document.querySelectorAll('.btn-select').forEach(b => {
+    b.classList.toggle('actif', b.dataset.select === id);
+  });
+  document.getElementById('editionPiece').classList.add('selection-active');
+  document.getElementById('editionNom').textContent = libellePiece(id);
+  mettreAJourHudColle();
+  mettreAJourHelperSelection();
+  gizmoHud.classList.add('visible');
+  gizmoHud.setAttribute('aria-hidden', 'false');
+}
+
+function deselectionnerPiece() {
+  pieceSelectionnee = null;
+  modeTransform = null;
+  document.querySelectorAll('.ligne-addon.selectionnee').forEach(el => el.classList.remove('selectionnee'));
+  document.querySelectorAll('.btn-select.actif, .gizmo-btn.actif').forEach(el => el.classList.remove('actif'));
+  document.getElementById('editionPiece').classList.remove('selection-active');
+  document.getElementById('editionMode').textContent = '—';
+  if (helperSelection) { assemblage.remove(helperSelection); helperSelection = null; }
+  gizmoHud.classList.remove('visible');
+  gizmoHud.setAttribute('aria-hidden', 'true');
+}
+
+function mettreAJourHelperSelection() {
+  if (!pieceSelectionnee || !addons[pieceSelectionnee]) return;
+  const pivot = addons[pieceSelectionnee].pivot;
+  if (helperSelection) assemblage.remove(helperSelection);
+  helperSelection = new THREE.BoxHelper(pivot, 0x00d9ff);
+  assemblage.add(helperSelection);
+}
+
+function mettreAJourHudColle() {
+  if (!pieceSelectionnee) return;
+  const addon = addons[pieceSelectionnee];
+  const colle = addon.colle;
+  btnColler.classList.toggle('actif', colle);
+  btnFlotter.classList.toggle('actif', !colle);
+  document.getElementById('btnCollerPanel').classList.toggle('actif', colle);
+  document.getElementById('btnFlotterPanel').classList.toggle('actif', !colle);
+  document.getElementById('taillePiece').value = addon.scaleMul;
+  document.getElementById('v-taillePiece').textContent = addon.scaleMul.toFixed(2);
+}
+
+function definirModeTransform(mode) {
+  modeTransform = modeTransform === mode ? null : mode;
+  document.querySelectorAll('.gizmo-btn[data-mode]').forEach(b => {
+    b.classList.toggle('actif', b.dataset.mode === modeTransform);
+  });
+  const libelles = { move: 'Déplacer', rotate: 'Pivoter', scale: 'Redimensionner' };
+  document.getElementById('editionMode').textContent = modeTransform ? libelles[modeTransform] : '—';
+}
+
+gizmoHud.querySelectorAll('.gizmo-btn[data-mode]').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    definirModeTransform(btn.dataset.mode);
+  });
+});
+btnColler.addEventListener('click', (e) => { e.stopPropagation(); if (pieceSelectionnee) activerColle(pieceSelectionnee, true); });
+btnFlotter.addEventListener('click', (e) => { e.stopPropagation(); if (pieceSelectionnee) activerColle(pieceSelectionnee, false); });
+
+function activerColle(id, colle) {
+  const addon = addons[id];
+  if (!addon) return;
+  addon.colle = colle;
+  addon.flotter = !colle;
+  mettreAJourHudColle();
+  if (colle) collerSurMoto(addon.pivot);
+  mettreAJourHelperSelection();
+}
+
+function reinitialiserPiece(id) {
+  const addon = addons[id];
+  if (!addon) return;
+  addon.pivot.position.copy(addon.basePosition);
+  addon.pivot.rotation.copy(addon.baseRotation);
+  addon.scaleMul = 1;
+  addon.colle = true;
+  addon.flotter = false;
+  mettreAJourHudColle();
+  rafraichirAddons();
+  collerSurMoto(addon.pivot);
+  mettreAJourHelperSelection();
+}
+
+function collerSurMoto(pivot) {
+  if (!bikeMeshes.length) return;
+  const pos = new THREE.Vector3();
+  pivot.getWorldPosition(pos);
+  const centre = bikeBounds.getCenter(new THREE.Vector3());
+  const directions = [
+    centre.clone().sub(pos),
+    new THREE.Vector3(0, -1, 0),
+    new THREE.Vector3(0, 1, 0),
+    new THREE.Vector3(1, 0, 0), new THREE.Vector3(-1, 0, 0),
+    new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -1),
+  ];
+  let meilleur = null;
+  let meilleureDist = Infinity;
+  directions.forEach(dir => {
+    if (dir.lengthSq() < 1e-6) return;
+    dir.normalize();
+    for (let t = 0; t < 2; t++) {
+      const origine = t === 0 ? pos.clone() : pos.clone().add(dir.clone().multiplyScalar(-0.05));
+      raycaster.set(origine, dir);
+      const hits = raycaster.intersectObjects(bikeMeshes, true);
+      if (!hits.length) continue;
+      const hit = hits[0];
+      if (hit.distance < meilleureDist) { meilleureDist = hit.distance; meilleur = hit; }
+    }
+  });
+  if (!meilleur) return;
+  const normale = meilleur.face.normal.clone().transformDirection(meilleur.object.matrixWorld).normalize();
+  const cible = meilleur.point.clone().add(normale.multiplyScalar(0.01));
+  if (pivot.parent) pivot.parent.worldToLocal(cible);
+  pivot.position.copy(cible);
+}
+
+function pieceSousPointeur() {
+  const meshes = [];
+  Object.values(addons).forEach(a => {
+    if (a.pivot.visible) meshes.push(a.mesh);
+  });
+  if (!meshes.length) return null;
+  raycaster.setFromCamera(pointeur, camera);
+  const hits = raycaster.intersectObjects(meshes, false);
+  if (!hits.length) return null;
+  const mesh = hits[0].object;
+  return Object.keys(addons).find(id => addons[id].mesh === mesh) || null;
+}
+
+function demarrerDragTransform(e) {
+  dragTransform = true;
+  dragStartX = e.clientX;
+  dragStartY = e.clientY;
+  const addon = addons[pieceSelectionnee];
+  valeurDragDepart = {
+    position: addon.pivot.position.clone(),
+    rotationY: addon.pivot.rotation.y,
+    scaleMul: addon.scaleMul,
+  };
+  const camDir = new THREE.Vector3();
+  camera.getWorldDirection(camDir);
+  planDrag.setFromNormalAndCoplanarPoint(camDir.negate(), addon.pivot.position);
+  raycaster.setFromCamera(pointeur, camera);
+  if (raycaster.ray.intersectPlane(planDrag, intersectionDrag)) {
+    offsetDrag.copy(addon.pivot.position).sub(intersectionDrag);
+  }
+}
+
+function appliquerDragTransform(e) {
+  if (!pieceSelectionnee || !dragTransform) return;
+  const addon = addons[pieceSelectionnee];
+  mettreAJourPointeur(e);
+  const dx = e.clientX - dragStartX;
+  const dy = e.clientY - dragStartY;
+  if (modeTransform === 'move') {
+    raycaster.setFromCamera(pointeur, camera);
+    if (raycaster.ray.intersectPlane(planDrag, intersectionDrag)) {
+      addon.pivot.position.copy(intersectionDrag.clone().add(offsetDrag));
+      if (addon.colle) collerSurMoto(addon.pivot);
+    }
+  } else if (modeTransform === 'rotate') {
+    addon.pivot.rotation.y = valeurDragDepart.rotationY + dx * 0.01;
+  } else if (modeTransform === 'scale') {
+    addon.scaleMul = Math.max(0.3, Math.min(2.5, valeurDragDepart.scaleMul - dy * 0.005));
+    document.getElementById('taillePiece').value = addon.scaleMul;
+    document.getElementById('v-taillePiece').textContent = addon.scaleMul.toFixed(2);
+    rafraichirAddons();
+  }
+  mettreAJourHelperSelection();
+}
+
+function mettreAJourGizmoHud() {
+  if (!pieceSelectionnee || !addons[pieceSelectionnee] || !addons[pieceSelectionnee].pivot.visible) {
+    gizmoHud.classList.remove('visible');
+    return;
+  }
+  const pos = new THREE.Vector3();
+  addons[pieceSelectionnee].pivot.getWorldPosition(pos);
+  pos.project(camera);
+  if (pos.z > 1) { gizmoHud.classList.remove('visible'); return; }
+  const x = (pos.x * 0.5 + 0.5) * viewport.clientWidth;
+  const y = (-pos.y * 0.5 + 0.5) * viewport.clientHeight - 56;
+  gizmoHud.style.left = x + 'px';
+  gizmoHud.style.top = y + 'px';
+  gizmoHud.classList.add('visible');
+}
 
 function updateCamera() {
   camera.position.x = camDist * Math.sin(camAngleY) * Math.cos(camAngleX);
@@ -6174,12 +6492,28 @@ function touchDist(touches) {
 }
 
 viewport.addEventListener('pointerdown', e => {
-  if (e.target.closest('#panel')) return;
-  dragging = true; lastX = e.clientX; lastY = e.clientY;
+  if (e.target.closest('#gizmoHud') || e.target.closest('#panel')) return;
+  mettreAJourPointeur(e);
+  const id = pieceSousPointeur();
+  if (id) {
+    selectionnerPiece(id);
+    if (modeTransform) { demarrerDragTransform(e); e.preventDefault(); return; }
+    draggingCamera = false;
+    return;
+  }
+  if (modeTransform && pieceSelectionnee) {
+    demarrerDragTransform(e);
+    e.preventDefault();
+    return;
+  }
+  deselectionnerPiece();
+  draggingCamera = true;
+  lastX = e.clientX; lastY = e.clientY;
 });
-window.addEventListener('pointerup', () => { dragging = false; pinchDist = 0; });
+window.addEventListener('pointerup', () => { draggingCamera = false; dragTransform = false; pinchDist = 0; });
 window.addEventListener('pointermove', e => {
-  if (!dragging) return;
+  if (dragTransform) { appliquerDragTransform(e); return; }
+  if (!draggingCamera) return;
   camAngleY -= (e.clientX - lastX) * 0.008;
   camAngleX = Math.max(-0.1, Math.min(1.0, camAngleX + (e.clientY - lastY) * 0.006));
   lastX = e.clientX; lastY = e.clientY;
@@ -6353,10 +6687,29 @@ function creerMateriau(couleur, emissif) {
 
 function ajouterPiece(id, mesh) {
   const def = ADDONS_CATALOG.find(a => a.id === id);
-  mesh.visible = false;
+  const pivot = new THREE.Group();
+  const pos = mesh.position.clone();
+  const rot = mesh.rotation.clone();
+  mesh.position.set(0, 0, 0);
+  mesh.rotation.set(0, 0, 0);
+  pivot.position.copy(pos);
+  pivot.rotation.copy(rot);
+  pivot.add(mesh);
+  pivot.visible = false;
+  pivot.name = 'pivot-' + id;
   mesh.name = id;
-  addons[id] = { mesh, emissive: def ? def.emissive : false };
-  assemblage.add(mesh);
+  addons[id] = {
+    id,
+    pivot,
+    mesh,
+    emissive: def ? def.emissive : false,
+    basePosition: pos.clone(),
+    baseRotation: new THREE.Euler().copy(rot),
+    colle: true,
+    flotter: false,
+    scaleMul: 1,
+  };
+  assemblage.add(pivot);
 }
 
 function construireAddons() {
@@ -6491,6 +6844,8 @@ function construireAddons() {
   const plaque = new THREE.Mesh(new THREE.BoxGeometry(size.x * 0.1, size.y * 0.06, 0.008), creerMateriau(def('plaque').color, false));
   plaque.position.set(min.x + size.x * 0.08, min.y + size.y * 0.35, 0);
   ajouterPiece('plaque', plaque);
+
+  Object.values(addons).forEach(a => { if (a.colle) collerSurMoto(a.pivot); });
 }
 
 function rafraichirAddons() {
@@ -6500,8 +6855,9 @@ function rafraichirAddons() {
     if (!addon) return;
     const chk = document.getElementById('chk-' + a.id);
     const col = document.getElementById('col-' + a.id);
-    addon.mesh.visible = chk && chk.checked;
-    addon.mesh.scale.setScalar(echelle);
+    addon.pivot.visible = chk && chk.checked;
+    const s = echelle * addon.scaleMul;
+    addon.mesh.scale.setScalar(s);
     if (col) {
       addon.mesh.material.color.set(col.value);
       if (addon.emissive && addon.mesh.material.emissive) {
@@ -6509,6 +6865,7 @@ function rafraichirAddons() {
       }
     }
   });
+  if (pieceSelectionnee) mettreAJourHelperSelection();
 }
 
 // ---------------------------------------------------------------------
@@ -6536,6 +6893,7 @@ function exporterGlb() {
 resize();
 function animate() {
   requestAnimationFrame(animate);
+  mettreAJourGizmoHud();
   renderer.render(scene, camera);
 }
 animate();
