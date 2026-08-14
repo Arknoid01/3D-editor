@@ -6893,6 +6893,8 @@ const assemblage = new THREE.Group();
 scene.add(assemblage);
 
 let bikeModel = null;
+let bikeModelLoaded = false;
+let addonsConstruits = false;
 let bikeBounds = null;
 let bikeMeshes = [];
 let textureOriginale = null;
@@ -6932,7 +6934,8 @@ function appliquerCouleursCarrosserie() {
   if (!pixelsOriginaux || !bikeMeshes.length) return;
   const couleurs = {};
   COULEURS_CARROSSERIE.forEach(c => {
-    couleurs[c.id] = document.getElementById('col-' + c.id).value;
+    const el = document.getElementById('col-' + c.id);
+    couleurs[c.id] = el ? el.value : c.value;
   });
   const data = new Uint8ClampedArray(pixelsOriginaux);
   for (let i = 0; i < data.length; i += 4) {
@@ -7016,14 +7019,10 @@ loader.parse(arrayBuffer, '', (gltf) => {
 
   assemblage.add(bikeModel);
   loadingEl.style.display = 'none';
+  bikeModelLoaded = true;
   const btnExport = document.getElementById('btnExport');
   if (btnExport) btnExport.disabled = false;
-  appliquerCouleursCarrosserie();
-  catalogReady.then(() => {
-    construireAddons();
-    rafraichirAddons();
-    enregistrerHistorique();
-  });
+  initialiserScene();
 }, (err) => {
   loadingEl.textContent = 'Erreur de chargement : ' + err.message;
 });
@@ -7903,7 +7902,8 @@ function construireAddons() {
 }
 
 function rafraichirAddons() {
-  const echelle = parseFloat(document.getElementById('echelleAddons').value);
+  const echelleEl = document.getElementById('echelleAddons');
+  const echelle = echelleEl ? parseFloat(echelleEl.value) : 1;
   ADDONS_CATALOG.forEach(a => {
     const addon = addons[a.id];
     if (!addon) return;
@@ -7920,6 +7920,18 @@ function rafraichirAddons() {
     }
   });
   if (pieceSelectionnee) mettreAJourHelperSelection();
+}
+
+function initialiserScene() {
+  if (!bikeModelLoaded || !catalogData) return;
+  if (!document.getElementById('echelleAddons')) return;
+  if (!addonsConstruits) {
+    construireAddons();
+    addonsConstruits = true;
+  }
+  appliquerCouleursCarrosserie();
+  rafraichirAddons();
+  if (historique.stack.length === 0) enregistrerHistorique();
 }
 
 // ---------------------------------------------------------------------
@@ -8277,6 +8289,7 @@ const presetsReady = fetch('presets.json').then(r => r.json()).then(p => {
 Promise.all([catalogReady, presetsReady]).then(([cat]) => {
   if (cat) construirePanneau();
   else afficherErreurCatalogue();
+  initialiserScene();
 });
 
 function boundsToPlain() {
@@ -8327,7 +8340,7 @@ function appliquerAssemblageIA(config) {
 }
 
 window.AssembleurAPI = {
-  isReady: () => !!(catalogData && bikeModel && ADDONS_CATALOG.length),
+  isReady: () => !!(catalogData && bikeModel && ADDONS_CATALOG.length && addonsConstruits),
   getCatalog: () => catalogData ? AssemblerEngine.getCatalog(catalogData) : null,
   getRawCatalog: () => catalogData,
   getPresets: () => presetsData,
