@@ -6146,6 +6146,18 @@ const ADDONS_CATALOG = [
   { id: 'empennageAvion', section: 'ailes', label: 'Empennage horizontal', color: '#d0d4dc', emissive: false },
   { id: 'aileOiseauDeployG', section: 'ailes', label: 'Aile oiseau déployée G', color: '#a08030', emissive: false },
   { id: 'aileOiseauDeployD', section: 'ailes', label: 'Aile oiseau déployée D', color: '#a08030', emissive: false },
+  { id: 'aileAlbatrosG', section: 'ailes', label: 'Aile albatros G', color: '#f0f0ea', emissive: false },
+  { id: 'aileAlbatrosD', section: 'ailes', label: 'Aile albatros D', color: '#f0f0ea', emissive: false },
+  { id: 'aileAigleG', section: 'ailes', label: 'Aile aigle G', color: '#5c4030', emissive: false },
+  { id: 'aileAigleD', section: 'ailes', label: 'Aile aigle D', color: '#5c4030', emissive: false },
+  { id: 'aileWingletG', section: 'ailes', label: 'Aile + croquignole G', color: '#dce2ec', emissive: false },
+  { id: 'aileWingletD', section: 'ailes', label: 'Aile + croquignole D', color: '#dce2ec', emissive: false },
+  { id: 'aileBiplanG', section: 'ailes', label: 'Aile biplan G', color: '#b8956a', emissive: false },
+  { id: 'aileBiplanD', section: 'ailes', label: 'Aile biplan D', color: '#b8956a', emissive: false },
+  { id: 'aileChauveSourisG', section: 'ailes', label: 'Aile chauve-souris G', color: '#3a2848', emissive: false },
+  { id: 'aileChauveSourisD', section: 'ailes', label: 'Aile chauve-souris D', color: '#3a2848', emissive: false },
+  { id: 'ailePapillonG', section: 'ailes', label: 'Aile papillon G', color: '#ff44aa', emissive: false },
+  { id: 'ailePapillonD', section: 'ailes', label: 'Aile papillon D', color: '#44ccff', emissive: false },
   { id: 'triangleG', section: 'formes', label: 'Triangle G', color: '#8844ff', emissive: false },
   { id: 'triangleD', section: 'formes', label: 'Triangle D', color: '#8844ff', emissive: false },
   { id: 'triangleAv', section: 'formes', label: 'Triangle avant', color: '#ff8800', emissive: false },
@@ -7100,6 +7112,20 @@ function creerAileMesh(opts) {
       twist = -t * 0.08;
       camberMul = 0.06;
       thickMul = 0.032;
+    } else if (type === 'albatros') {
+      taper = Math.sqrt(Math.max(0.008, 1 - t * t * 0.97));
+      sweep = t * t * cordeRacine * 0.42;
+      dihedral = t * cordeRacine * 0.1;
+      twist = -t * 0.06;
+      camberMul = 0.06;
+      thickMul = 0.022;
+    } else if (type === 'aigle') {
+      taper = Math.pow(Math.max(0.01, 1 - t * 0.92), 1.4);
+      sweep = t * t * cordeRacine * 0.62;
+      dihedral = t * cordeRacine * 0.2 + Math.sin(t * Math.PI) * cordeRacine * 0.12;
+      twist = -t * 0.25;
+      camberMul = 0.24;
+      thickMul = 0.058;
     } else {
       taper = 1 - t * 0.42;
       sweep = t * cordeRacine * 0.22;
@@ -7124,10 +7150,10 @@ function creerAileMesh(opts) {
       const camber = camberMul * c * Math.sin(u * Math.PI) + dihedral;
       const thick = epaisseurNaca(u, c, thickMul);
       let yU = camber + thick;
-      let yL = camber - thick * (type === 'oiseau' || type === 'oiseauDeploy' ? 0.62 : 0.48);
+      let yL = camber - thick * (type === 'oiseau' || type === 'oiseauDeploy' || type === 'aigle' ? 0.62 : 0.48);
 
-      if (type === 'oiseau' || type === 'oiseauDeploy') {
-        const arc = Math.sin(u * Math.PI) * c * 0.07;
+      if (type === 'oiseau' || type === 'oiseauDeploy' || type === 'aigle') {
+        const arc = Math.sin(u * Math.PI) * c * (type === 'aigle' ? 0.1 : 0.07);
         x += arc * (1 - t * 0.5);
       }
 
@@ -7168,6 +7194,22 @@ function creerAileMesh(opts) {
     quad(upperIdx[tip][ci], upperIdx[tip][ci + 1], lowerIdx[tip][ci], lowerIdx[tip][ci + 1], false);
   }
 
+  if (opts.winglet && type !== 'empennage') {
+    const ciW = Math.floor(chordSeg * 0.55);
+    const hW = cordeRacine * 0.32;
+    const lean = cordeRacine * 0.08;
+    [[upperIdx[tip][ciW], upperIdx[tip][ciW + 2]], [upperIdx[tip][chordSeg - 1], upperIdx[tip][chordSeg]]].forEach(([i0, i1]) => {
+      const x0 = positions[i0 * 3], y0 = positions[i0 * 3 + 1], z0 = positions[i0 * 3 + 2];
+      const x1 = positions[i1 * 3], y1 = positions[i1 * 3 + 1], z1 = positions[i1 * 3 + 2];
+      const a = addVert(x0, y0, z0);
+      const b = addVert(x1, y1, z1);
+      const c = addVert(x0 + lean, y0 + hW, z0);
+      const d = addVert(x1 + lean * 0.6, y1 + hW * 0.88, z1);
+      quad(a, b, c, d, false);
+      quad(b, a, d, c, false);
+    });
+  }
+
   const geom = new THREE.BufferGeometry();
   geom.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
   geom.setIndex(indices);
@@ -7176,6 +7218,119 @@ function creerAileMesh(opts) {
   mesh.castShadow = true;
   mesh.receiveShadow = true;
   return mesh;
+}
+
+function fusionnerGeometries(geometries) {
+  const positions = [];
+  const indices = [];
+  let offset = 0;
+  geometries.forEach((g) => {
+    const p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) positions.push(p.getX(i), p.getY(i), p.getZ(i));
+    if (g.index) {
+      for (let i = 0; i < g.index.count; i++) indices.push(g.index.getX(i) + offset);
+    }
+    offset += p.count;
+  });
+  const merged = new THREE.BufferGeometry();
+  merged.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  if (indices.length) merged.setIndex(indices);
+  merged.computeVertexNormals();
+  return merged;
+}
+
+function creerAileBiplan(opts) {
+  const { envergure, cordeRacine, couleur, emissif, spanSign = 1 } = opts;
+  const gap = cordeRacine * 0.2;
+  const lower = creerAileMesh({ ...opts, type: 'avion' }).geometry;
+  const upper = creerAileMesh({ ...opts, type: 'avion' }).geometry;
+  lower.translate(0, -gap * 0.35, 0);
+  upper.translate(0, gap, 0);
+  const struts = [];
+  [0.22, 0.52, 0.82].forEach((t) => {
+    const sg = new THREE.BoxGeometry(0.014, gap * 1.35, 0.014);
+    sg.translate(cordeRacine * 0.32, gap * 0.3, spanSign * envergure * t);
+    struts.push(sg);
+  });
+  const geom = fusionnerGeometries([lower, upper, ...struts]);
+  return new THREE.Mesh(geom, creerMateriau(couleur, emissif));
+}
+
+function creerAileChauveSouris(opts) {
+  const { envergure, cordeRacine, couleur, emissif, spanSign = -1 } = opts;
+  const positions = [];
+  const indices = [];
+  let vi = 0;
+  const fingers = 5;
+  const spanSeg = 20;
+  const fingerPaths = [];
+
+  for (let fi = 0; fi < fingers; fi++) {
+    const ft = fi / (fingers - 1);
+    const fingerLen = envergure * (0.32 + ft * 0.68);
+    const path = [];
+    for (let si = 0; si <= spanSeg; si++) {
+      const t = si / spanSeg;
+      const z = spanSign * t * fingerLen;
+      const x = cordeRacine * (0.1 + ft * 0.52) * (1 - t * 0.55) + t * cordeRacine * 0.18 * ft;
+      const y = -t * t * cordeRacine * 0.45 * (0.45 + ft * 0.55)
+        + Math.sin(t * Math.PI * 0.85) * cordeRacine * 0.07;
+      path.push({ x, y, z });
+    }
+    fingerPaths.push(path);
+  }
+
+  function addVert(v) {
+    positions.push(v.x, v.y, v.z);
+    return vi++;
+  }
+  function quad(a, b, c, d) {
+    indices.push(a, c, b, b, c, d);
+  }
+
+  for (let fi = 0; fi < fingers - 1; fi++) {
+    for (let si = 0; si < spanSeg; si++) {
+      const va = addVert(fingerPaths[fi][si]);
+      const vb = addVert(fingerPaths[fi + 1][si]);
+      const vc = addVert(fingerPaths[fi][si + 1]);
+      const vd = addVert(fingerPaths[fi + 1][si + 1]);
+      quad(va, vb, vc, vd);
+    }
+  }
+
+  const root = { x: -cordeRacine * 0.06, y: 0, z: 0 };
+  const r = addVert(root);
+  for (let fi = 0; fi < fingers - 1; fi++) {
+    const a = addVert(fingerPaths[fi][0]);
+    const b = addVert(fingerPaths[fi + 1][0]);
+    indices.push(r, a, b);
+  }
+
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geom.setIndex(indices);
+  geom.computeVertexNormals();
+  const mat = creerMateriau(couleur, emissif);
+  mat.side = THREE.DoubleSide;
+  return new THREE.Mesh(geom, mat);
+}
+
+function creerAilePapillon(opts) {
+  const { envergure, cordeRacine, couleur, emissif, spanSign = -1 } = opts;
+  const w = cordeRacine * 0.95;
+  const h = envergure * 0.88;
+  const s = new THREE.Shape();
+  s.moveTo(0, 0);
+  s.bezierCurveTo(w * 0.45, h * 0.55, w * 0.85, h * 1.05, w * 0.22, h * 0.82);
+  s.bezierCurveTo(w * 0.55, h * 0.5, w * 0.2, h * 0.12, 0, 0);
+  s.bezierCurveTo(w * 0.18, -h * 0.1, w * 0.55, -h * 0.45, w * 0.2, -h * 0.82);
+  s.bezierCurveTo(w * 0.75, -h * 0.55, w * 0.4, -h * 0.15, 0, 0);
+  const g = new THREE.ExtrudeGeometry(s, { depth: 0.008, bevelEnabled: false });
+  g.center();
+  if (spanSign < 0) g.scale(-1, 1, 1);
+  const mat = creerMateriau(couleur, emissif);
+  mat.side = THREE.DoubleSide;
+  return new THREE.Mesh(g, mat);
 }
 
 function ajouterPiece(id, mesh) {
@@ -7388,6 +7543,69 @@ function construireAddons() {
   });
   empennageAvion.position.set(min.x + size.x * 0.04, min.y + size.y * 0.72, 0);
   ajouterPiece('empennageAvion', empennageAvion);
+
+  [[-1, 'aileAlbatrosG'], [1, 'aileAlbatrosD']].forEach(([sens, id]) => {
+    const m = creerAileMesh({
+      envergure: size.z * 3.6, cordeRacine: size.x * 0.32,
+      couleur: def(id).color, emissif: false, spanSign: sens, type: 'albatros',
+    });
+    m.position.set(cx - size.x * 0.06, min.y + size.y * 0.56, sens * size.z * 0.44);
+    m.rotation.y = sens * 0.06;
+    ajouterPiece(id, m);
+  });
+
+  [[-1, 'aileAigleG'], [1, 'aileAigleD']].forEach(([sens, id]) => {
+    const m = creerAileMesh({
+      envergure: size.z * 2.1, cordeRacine: size.x * 0.4,
+      couleur: def(id).color, emissif: false, spanSign: sens, type: 'aigle',
+    });
+    m.position.set(cx - size.x * 0.04, min.y + size.y * 0.6, sens * size.z * 0.45);
+    m.rotation.y = sens * 0.14;
+    m.rotation.z = sens * 0.08;
+    ajouterPiece(id, m);
+  });
+
+  [[-1, 'aileWingletG'], [1, 'aileWingletD']].forEach(([sens, id]) => {
+    const m = creerAileMesh({
+      envergure: size.z * 2.15, cordeRacine: size.x * 0.4,
+      couleur: def(id).color, emissif: false, spanSign: sens, type: 'avion', winglet: true,
+    });
+    m.position.set(cx - size.x * 0.1, min.y + size.y * 0.54, sens * size.z * 0.46);
+    m.rotation.y = sens * 0.08;
+    ajouterPiece(id, m);
+  });
+
+  [[-1, 'aileBiplanG'], [1, 'aileBiplanD']].forEach(([sens, id]) => {
+    const m = creerAileBiplan({
+      envergure: size.z * 1.85, cordeRacine: size.x * 0.34,
+      couleur: def(id).color, emissif: false, spanSign: sens,
+    });
+    m.position.set(cx - size.x * 0.1, min.y + size.y * 0.5, sens * size.z * 0.43);
+    m.rotation.y = sens * 0.1;
+    ajouterPiece(id, m);
+  });
+
+  [[-1, 'aileChauveSourisG'], [1, 'aileChauveSourisD']].forEach(([sens, id]) => {
+    const m = creerAileChauveSouris({
+      envergure: size.z * 2.0, cordeRacine: size.x * 0.36,
+      couleur: def(id).color, emissif: false, spanSign: sens,
+    });
+    m.position.set(cx - size.x * 0.04, min.y + size.y * 0.64, sens * size.z * 0.42);
+    m.rotation.y = sens * 0.2;
+    m.rotation.x = 0.15;
+    ajouterPiece(id, m);
+  });
+
+  [[-1, 'ailePapillonG'], [1, 'ailePapillonD']].forEach(([sens, id]) => {
+    const m = creerAilePapillon({
+      envergure: size.z * 1.6, cordeRacine: size.x * 0.3,
+      couleur: def(id).color, emissif: false, spanSign: sens,
+    });
+    m.position.set(cx, min.y + size.y * 0.66, sens * size.z * 0.4);
+    m.rotation.y = sens * 0.25;
+    m.rotation.x = -0.2;
+    ajouterPiece(id, m);
+  });
 
   // Formes & déco libre
   [[-1, 'triangleG', 'decoLeftHigh'], [1, 'triangleD', 'decoRightHigh']].forEach(([sens, id]) => {
