@@ -259,6 +259,36 @@
           "anchor": { "x": 0.5, "y": 0.5, "z": 0.5 },
           "rotation": [0, 0, 0],
           "tags": ["deco", "shape", "free"]
+        },
+        "wingRootLeft": {
+          "id": "wingRootLeft",
+          "anchor": { "x": 0.48, "y": 0.55, "z": 0.0 },
+          "rotation": [0, 0.2, 0.15],
+          "tags": ["wing", "airplane", "bird", "side", "left", "deco"]
+        },
+        "wingRootRight": {
+          "id": "wingRootRight",
+          "anchor": { "x": 0.48, "y": 0.55, "z": 1.0 },
+          "rotation": [0, -0.2, -0.15],
+          "tags": ["wing", "airplane", "bird", "side", "right", "deco"]
+        },
+        "wingTopLeft": {
+          "id": "wingTopLeft",
+          "anchor": { "x": 0.42, "y": 0.78, "z": 0.02 },
+          "rotation": [0, 0.35, 0.25],
+          "tags": ["wing", "bird", "side", "left", "deco", "top"]
+        },
+        "wingTopRight": {
+          "id": "wingTopRight",
+          "anchor": { "x": 0.42, "y": 0.78, "z": 0.98 },
+          "rotation": [0, -0.35, -0.25],
+          "tags": ["wing", "bird", "side", "right", "deco", "top"]
+        },
+        "empennageRear": {
+          "id": "empennageRear",
+          "anchor": { "x": 0.04, "y": 0.74, "z": 0.5 },
+          "rotation": [0, 0, 0],
+          "tags": ["wing", "airplane", "rear", "deco"]
         }
       }
     }
@@ -1066,6 +1096,114 @@
       "allowedOffset": { "x": [-0.4, 0.4], "y": [-0.4, 0.4], "z": [-0.4, 0.4] },
       "allowedScale": [0.3, 2.5],
       "defaultColor": "grey",
+      "emissive": false
+    },
+    "aileAvionG": {
+      "id": "aileAvionG",
+      "name": "Aile avion G",
+      "section": "ailes",
+      "compatibleTags": ["wing", "airplane", "side", "left", "deco"],
+      "defaultSocket": "wingRootLeft",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.5, 0.5], "y": [-0.5, 0.5], "z": [-0.5, 0.5] },
+      "allowedScale": [0.4, 2.8],
+      "defaultColor": "white",
+      "emissive": false
+    },
+    "aileAvionD": {
+      "id": "aileAvionD",
+      "name": "Aile avion D",
+      "section": "ailes",
+      "compatibleTags": ["wing", "airplane", "side", "right", "deco"],
+      "defaultSocket": "wingRootRight",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.5, 0.5], "y": [-0.5, 0.5], "z": [-0.5, 0.5] },
+      "allowedScale": [0.4, 2.8],
+      "defaultColor": "white",
+      "emissive": false
+    },
+    "aileOiseauG": {
+      "id": "aileOiseauG",
+      "name": "Aile oiseau G",
+      "section": "ailes",
+      "compatibleTags": ["wing", "bird", "side", "left", "deco"],
+      "defaultSocket": "wingRootLeft",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.5, 0.5], "y": [-0.5, 0.5], "z": [-0.5, 0.5] },
+      "allowedScale": [0.4, 2.8],
+      "defaultColor": "orange",
+      "emissive": false
+    },
+    "aileOiseauD": {
+      "id": "aileOiseauD",
+      "name": "Aile oiseau D",
+      "section": "ailes",
+      "compatibleTags": ["wing", "bird", "side", "right", "deco"],
+      "defaultSocket": "wingRootRight",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.5, 0.5], "y": [-0.5, 0.5], "z": [-0.5, 0.5] },
+      "allowedScale": [0.4, 2.8],
+      "defaultColor": "orange",
+      "emissive": false
+    },
+    "aileChasseG": {
+      "id": "aileChasseG",
+      "name": "Aile chasse G",
+      "section": "ailes",
+      "compatibleTags": ["wing", "airplane", "side", "left", "deco"],
+      "defaultSocket": "wingRootLeft",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.5, 0.5], "y": [-0.5, 0.5], "z": [-0.5, 0.5] },
+      "allowedScale": [0.4, 2.8],
+      "defaultColor": "grey",
+      "emissive": false
+    },
+    "aileChasseD": {
+      "id": "aileChasseD",
+      "name": "Aile chasse D",
+      "section": "ailes",
+      "compatibleTags": ["wing", "airplane", "side", "right", "deco"],
+      "defaultSocket": "wingRootRight",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.5, 0.5], "y": [-0.5, 0.5], "z": [-0.5, 0.5] },
+      "allowedScale": [0.4, 2.8],
+      "defaultColor": "grey",
+      "emissive": false
+    },
+    "aileOiseauDeployG": {
+      "id": "aileOiseauDeployG",
+      "name": "Aile oiseau déployée G",
+      "section": "ailes",
+      "compatibleTags": ["wing", "bird", "side", "left", "deco", "top"],
+      "defaultSocket": "wingTopLeft",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.55, 0.55], "y": [-0.55, 0.55], "z": [-0.55, 0.55] },
+      "allowedScale": [0.4, 3.0],
+      "defaultColor": "orange",
+      "emissive": false
+    },
+    "aileOiseauDeployD": {
+      "id": "aileOiseauDeployD",
+      "name": "Aile oiseau déployée D",
+      "section": "ailes",
+      "compatibleTags": ["wing", "bird", "side", "right", "deco", "top"],
+      "defaultSocket": "wingTopRight",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.55, 0.55], "y": [-0.55, 0.55], "z": [-0.55, 0.55] },
+      "allowedScale": [0.4, 3.0],
+      "defaultColor": "orange",
+      "emissive": false
+    },
+    "empennageAvion": {
+      "id": "empennageAvion",
+      "name": "Empennage horizontal",
+      "section": "ailes",
+      "compatibleTags": ["wing", "airplane", "rear", "deco"],
+      "defaultSocket": "empennageRear",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.4, 0.4], "y": [-0.4, 0.4], "z": [-0.4, 0.4] },
+      "allowedScale": [0.4, 2.5],
+      "defaultColor": "white",
       "emissive": false
     }
   }
