@@ -6013,6 +6013,12 @@
     font-size: 10px; color: var(--text-dim); text-align: center;
     font-variant-numeric: tabular-nums;
   }
+  .gizmo-axes-rotation { display: none; flex-wrap: wrap; gap: 6px; pointer-events: auto; margin-top: 4px; }
+  .gizmo-axes-rotation.visible { display: flex; }
+  .gizmo-axes-rotation .gizmo-btn { min-width: 32px; font-size: 12px; font-weight: 700; }
+  .ligne-rot { display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 12px; }
+  .ligne-rot input[type=range] { flex: 1; }
+  .ligne-rot .axe { width: 14px; font-weight: 700; color: var(--cyan); }
   #editionPiece .edition-controles { display: none; }
   #editionPiece.selection-active .edition-controles { display: block; }
   #editionPiece.selection-active .edition-vide { display: none; }
@@ -6057,6 +6063,11 @@
           <span class="vide"></span>
           <span class="vide"></span>
           <span class="vide"></span>
+        </div>
+        <div class="gizmo-axes-rotation" id="gizmoAxesRotation">
+          <button type="button" class="gizmo-btn actif" data-axe="y" title="Axe vertical (Y)">Y</button>
+          <button type="button" class="gizmo-btn" data-axe="x" title="Axe horizontal — basculer avant/arrière (X)">X</button>
+          <button type="button" class="gizmo-btn" data-axe="z" title="Axe horizontal — roulis gauche/droite (Z)">Z</button>
         </div>
         <div class="gizmo-actions">
           <button type="button" class="gizmo-btn" id="btnColler" title="Coller sur la moto">Coller</button>
@@ -6246,6 +6257,12 @@ function construirePanneau() {
             <div class="champ">
               <label>Taille individuelle <span class="val" id="v-taillePiece">1</span></label>
               <input type="range" id="taillePiece" min="0.3" max="2.5" step="0.05" value="1">
+            </div>
+            <div class="champ">
+              <label>Rotation par axe</label>
+              <div class="ligne-rot"><span class="axe">X</span><input type="range" id="rotX" min="-3.14" max="3.14" step="0.05" value="0"><span class="val" id="v-rotX">0°</span></div>
+              <div class="ligne-rot"><span class="axe">Y</span><input type="range" id="rotY" min="-3.14" max="3.14" step="0.05" value="0"><span class="val" id="v-rotY">0°</span></div>
+              <div class="ligne-rot"><span class="axe">Z</span><input type="range" id="rotZ" min="-3.14" max="3.14" step="0.05" value="0"><span class="val" id="v-rotZ">0°</span></div>
             </div>
             <button type="button" class="btn-action secondaire" id="btnCollerPanel">Coller sur la moto</button>
             <button type="button" class="btn-action secondaire" id="btnFlotterPanel">Laisser flotter</button>
@@ -6474,6 +6491,7 @@ const intersectionDrag = new THREE.Vector3();
 const offsetDrag = new THREE.Vector3();
 let pieceSelectionnee = null;
 let modeTransform = null; // 'move' | 'rotate' | 'scale'
+let axeRotation = 'y'; // 'x' | 'y' | 'z' — y = vertical, x/z = horizontaux
 let dragTransform = false;
 let dragStartX = 0, dragStartY = 0;
 let valeurDragDepart = null;
@@ -6511,6 +6529,7 @@ function selectionnerPiece(id) {
   mettreAJourHudColle();
   mettreAJourHelperSelection();
   mettreAJourHudEtage();
+  mettreAJourSlidersRotation();
   gizmoHud.classList.add('visible');
   gizmoHud.setAttribute('aria-hidden', 'false');
 }
@@ -6548,19 +6567,82 @@ function mettreAJourHudColle() {
   document.getElementById('v-taillePiece').textContent = addon.scaleMul.toFixed(2);
 }
 
+function degres(rad) {
+  return Math.round(rad * 180 / Math.PI) + '°';
+}
+
+function mettreAJourSlidersRotation() {
+  if (!pieceSelectionnee || !addons[pieceSelectionnee]) return;
+  const r = addons[pieceSelectionnee].pivot.rotation;
+  ['X', 'Y', 'Z'].forEach((axe) => {
+    const el = document.getElementById('rot' + axe);
+    const lbl = document.getElementById('v-rot' + axe);
+    const val = r[axe.toLowerCase()];
+    if (el) el.value = val;
+    if (lbl) lbl.textContent = degres(val);
+  });
+}
+
+function appliquerRotationSlider(axe, valeur) {
+  if (!pieceSelectionnee || !addons[pieceSelectionnee]) return;
+  addons[pieceSelectionnee].pivot.rotation[axe] = valeur;
+  mettreAJourSlidersRotation();
+  mettreAJourHelperSelection();
+}
+
+function mettreAJourHudAxesRotation() {
+  const bloc = document.getElementById('gizmoAxesRotation');
+  if (!bloc) return;
+  bloc.classList.toggle('visible', modeTransform === 'rotate');
+  bloc.querySelectorAll('.gizmo-btn[data-axe]').forEach((b) => {
+    b.classList.toggle('actif', b.dataset.axe === axeRotation);
+  });
+}
+
+function definirAxeRotation(axe) {
+  axeRotation = axe;
+  mettreAJourHudAxesRotation();
+  mettreAJourLibelleModeTransform();
+}
+
+function mettreAJourLibelleModeTransform() {
+  const libelles = {
+    move: 'Déplacer',
+    rotate: { x: 'Pivoter — axe X (horizontal)', y: 'Pivoter — axe Y (vertical)', z: 'Pivoter — axe Z (horizontal)' },
+    scale: 'Redimensionner',
+  };
+  let txt = '—';
+  if (modeTransform === 'rotate') txt = libelles.rotate[axeRotation];
+  else if (modeTransform) txt = libelles[modeTransform];
+  document.getElementById('editionMode').textContent = txt;
+}
+
 function definirModeTransform(mode) {
   modeTransform = modeTransform === mode ? null : mode;
   document.querySelectorAll('.gizmo-btn[data-mode]').forEach(b => {
     b.classList.toggle('actif', b.dataset.mode === modeTransform);
   });
-  const libelles = { move: 'Déplacer', rotate: 'Pivoter', scale: 'Redimensionner' };
-  document.getElementById('editionMode').textContent = modeTransform ? libelles[modeTransform] : '—';
+  mettreAJourHudAxesRotation();
+  mettreAJourLibelleModeTransform();
 }
 
 gizmoHud.querySelectorAll('.gizmo-btn[data-mode]').forEach(btn => {
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
     definirModeTransform(btn.dataset.mode);
+  });
+});
+document.getElementById('gizmoAxesRotation').querySelectorAll('.gizmo-btn[data-axe]').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    definirAxeRotation(btn.dataset.axe);
+  });
+});
+['X', 'Y', 'Z'].forEach((axe) => {
+  const el = document.getElementById('rot' + axe);
+  if (!el) return;
+  el.addEventListener('input', () => {
+    appliquerRotationSlider(axe.toLowerCase(), parseFloat(el.value));
   });
 });
 btnColler.addEventListener('click', (e) => { e.stopPropagation(); if (pieceSelectionnee) activerColle(pieceSelectionnee, true); });
@@ -6605,6 +6687,7 @@ function reinitialiserPiece(id) {
   rafraichirAddons();
   collerSurMoto(addon.pivot);
   mettreAJourHelperSelection();
+  mettreAJourSlidersRotation();
 }
 
 function collerSurMoto(pivot) {
@@ -6665,7 +6748,9 @@ function demarrerDragTransform(e) {
   const addon = addons[pieceSelectionnee];
   valeurDragDepart = {
     position: addon.pivot.position.clone(),
+    rotationX: addon.pivot.rotation.x,
     rotationY: addon.pivot.rotation.y,
+    rotationZ: addon.pivot.rotation.z,
     scaleMul: addon.scaleMul,
   };
   const camDir = new THREE.Vector3();
@@ -6692,7 +6777,15 @@ function appliquerDragTransform(e) {
       if (addon.colle) collerSurMoto(addon.pivot);
     }
   } else if (modeTransform === 'rotate') {
-    addon.pivot.rotation.y = valeurDragDepart.rotationY + dx * 0.01;
+    const sens = 0.01;
+    if (axeRotation === 'y') {
+      addon.pivot.rotation.y = valeurDragDepart.rotationY + dx * sens;
+    } else if (axeRotation === 'x') {
+      addon.pivot.rotation.x = valeurDragDepart.rotationX - dy * sens;
+    } else if (axeRotation === 'z') {
+      addon.pivot.rotation.z = valeurDragDepart.rotationZ + dx * sens;
+    }
+    mettreAJourSlidersRotation();
   } else if (modeTransform === 'scale') {
     addon.scaleMul = Math.max(0.3, Math.min(2.5, valeurDragDepart.scaleMul - dy * 0.005));
     document.getElementById('taillePiece').value = addon.scaleMul;
