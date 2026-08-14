@@ -19,6 +19,10 @@
       "id": "bike_base",
       "name": "Moto standard",
       "type": "motorcycle",
+      "defaultBounds": {
+        "min": { "x": -0.52, "y": -0.02, "z": -0.38 },
+        "max": { "x": 0.52, "y": 1.05, "z": 0.38 }
+      },
       "sockets": {
         "front": {
           "id": "front",

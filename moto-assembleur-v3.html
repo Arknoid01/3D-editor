@@ -7061,11 +7061,27 @@ function exporterGlb() {
 function exporterGlbPromise() {
   return new Promise((resolve, reject) => {
     if (!assemblage) return reject(new Error('Scène non prête'));
-    const exporter = new THREE.GLTFExporter();
-    exporter.parse(assemblage, (result) => {
-      resolve(new Blob([result], { type: 'application/octet-stream' }));
-    }, reject, { binary: true, onlyVisible: true });
+    try {
+      const exporter = new THREE.GLTFExporter();
+      exporter.parse(assemblage, (result) => {
+        if (!result) return reject(new Error('Export GLB vide'));
+        resolve(new Blob([result], { type: 'model/gltf-binary' }));
+      }, { binary: true, onlyVisible: true });
+    } catch (err) {
+      reject(err);
+    }
   });
+}
+
+async function assemblerEtExporterGlb(config) {
+  const asm = appliquerAssemblageIA(config);
+  if (!asm.success) return asm;
+  try {
+    const blob = await exporterGlbPromise();
+    return { ...asm, blob };
+  } catch (err) {
+    return { success: false, errors: [err.message || String(err)] };
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -7134,6 +7150,7 @@ window.AssembleurAPI = {
     return AssemblerEngine.validateConfig(config, catalogData);
   },
   assemble: (config) => appliquerAssemblageIA(config),
+  assembleAndExport: (config) => assemblerEtExporterGlb(config),
   exportGlb: () => exporterGlbPromise(),
   exemple: () => ({
     base: 'bike_base',

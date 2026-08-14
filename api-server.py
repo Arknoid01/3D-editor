@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
-"""API locale minimale pour agents IA — catalogue, validation et assemblage."""
+"""API locale minimale pour agents IA — catalogue, validation, assemblage et export GLB."""
 
 import json
 import os
+import subprocess
+import sys
+import tempfile
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from socketserver import ThreadingMixIn
 from urllib.parse import urlparse
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 CATALOG_PATH = os.path.join(ROOT, "catalog.json")
+EXPORT_SCRIPT = os.path.join(ROOT, "tools", "export-glb.mjs")
 
 
 def load_catalog():
@@ -161,9 +166,71 @@ def assemble_config(config, catalog, bounds):
     }
 
 
+def default_bounds(catalog, base_id="bike_base"):
+    base = catalog["bases"].get(base_id, {})
+    return base.get("defaultBounds")
+
+
+def resolve_bounds(body, catalog, config):
+    bounds = body.get("bounds")
+    if bounds:
+        return bounds
+    base_id = config.get("base", "bike_base")
+    return default_bounds(catalog, base_id)
+
+
+def run_export_glb(config, port):
+    if not os.path.isfile(EXPORT_SCRIPT):
+        return None, "Script tools/export-glb.mjs introuvable"
+    node_modules = os.path.join(ROOT, "node_modules", "puppeteer")
+    if not os.path.isdir(node_modules):
+        return None, "Puppeteer non installé — exécutez: npm install"
+
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+        json.dump(config, tmp)
+        cfg_path = tmp.name
+
+    out_fd, out_path = tempfile.mkstemp(suffix=".glb")
+    os.close(out_fd)
+
+    try:
+        env = os.environ.copy()
+        env["PORT"] = str(port)
+        proc = subprocess.run(
+            ["node", EXPORT_SCRIPT, "--config", cfg_path, "--out", out_path, "--port", str(port)],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=180,
+        )
+        if proc.returncode != 0:
+            err = proc.stderr.strip() or proc.stdout.strip() or "export échoué"
+            return None, err
+        with open(out_path, "rb") as f:
+            return f.read(), None
+    finally:
+        for p in (cfg_path, out_path):
+            try:
+                os.unlink(p)
+            except OSError:
+                pass
+
+
 class APIHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=ROOT, **kwargs)
+
+    def _binary(self, code, data, content_type="model/gltf-binary", extra_headers=None):
+        self.send_response(code)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Content-Length", str(len(data)))
+        if extra_headers:
+            for k, v in extra_headers.items():
+                self.send_header(k, v)
+        self.end_headers()
+        self.wfile.write(data)
 
     def _json(self, code, payload):
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -205,24 +272,46 @@ class APIHandler(SimpleHTTPRequestHandler):
 
         if path == "/api/assemble":
             config = body.get("config", body)
-            bounds = body.get("bounds")
+            bounds = resolve_bounds(body, catalog, config)
             if not bounds:
                 return self._json(400, {
                     "success": False,
-                    "error": "bounds requis (min/max x,y,z de la base chargée)",
+                    "error": "bounds requis ou defaultBounds manquant dans le catalogue",
                 })
             return self._json(200, assemble_config(config, catalog, bounds))
+
+        if path == "/api/export-glb":
+            config = body.get("config", body)
+            validation = validate_config(config, catalog)
+            if not validation["success"]:
+                return self._json(400, {**validation, "success": False})
+
+            port = int(os.environ.get("PORT", self.server.server_address[1]))
+            glb_data, err = run_export_glb(config, port)
+            if err:
+                return self._json(503, {"success": False, "error": err})
+            filename = body.get("filename") or config.get("assetId", "export") + ".glb"
+            if not filename.endswith(".glb"):
+                filename += ".glb"
+            return self._binary(200, glb_data, extra_headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+            })
 
         return self._json(404, {"success": False, "error": "Route inconnue"})
 
 
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    daemon_threads = True
+
+
 def main():
     port = int(os.environ.get("PORT", 8765))
-    server = HTTPServer(("0.0.0.0", port), APIHandler)
+    server = ThreadedHTTPServer(("0.0.0.0", port), APIHandler)
     print(f"API assembleur sur http://localhost:{port}")
     print("  GET  /api/catalog")
     print("  POST /api/validate")
     print("  POST /api/assemble")
+    print("  POST /api/export-glb  → fichier .glb (nécessite npm install)")
     server.serve_forever()
 
 

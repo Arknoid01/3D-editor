@@ -1,0 +1,11 @@
+{
+  "name": "3d-editor-assembler",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "export-glb": "node tools/export-glb.mjs"
+  },
+  "dependencies": {
+    "puppeteer": "^24.9.0"
+  }
+}
