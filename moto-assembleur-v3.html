@@ -6056,6 +6056,7 @@
   </div>
 </div>
 
+<script src="assembler-engine.js"></script>
 <script>
 // ---------------------------------------------------------------------
 // Config UI & pièces
@@ -6912,6 +6913,97 @@ function exporterGlb() {
     URL.revokeObjectURL(url);
   }, { binary: true, onlyVisible: true });
 }
+
+function exporterGlbPromise() {
+  return new Promise((resolve, reject) => {
+    if (!assemblage) return reject(new Error('Scène non prête'));
+    const exporter = new THREE.GLTFExporter();
+    exporter.parse(assemblage, (result) => {
+      resolve(new Blob([result], { type: 'application/octet-stream' }));
+    }, reject, { binary: true, onlyVisible: true });
+  });
+}
+
+// ---------------------------------------------------------------------
+// API IA — catalogue, validation, assemblage par sockets
+// ---------------------------------------------------------------------
+let catalogData = null;
+
+fetch('catalog.json').then(r => r.json()).then(c => { catalogData = c; }).catch(err => {
+  console.warn('Catalogue non chargé:', err);
+});
+
+function boundsToPlain() {
+  if (!bikeBounds) return null;
+  return {
+    min: { x: bikeBounds.min.x, y: bikeBounds.min.y, z: bikeBounds.min.z },
+    max: { x: bikeBounds.max.x, y: bikeBounds.max.y, z: bikeBounds.max.z }
+  };
+}
+
+function appliquerAssemblageIA(config) {
+  if (!catalogData) return { success: false, errors: ['Catalogue non chargé'] };
+  if (!bikeBounds) return { success: false, errors: ['Modèle base non chargé'] };
+  const bounds = boundsToPlain();
+  const result = AssemblerEngine.assembleAsset(config, catalogData, bounds);
+  if (!result.success) return result;
+
+  ADDONS_CATALOG.forEach(a => {
+    const chk = document.getElementById('chk-' + a.id);
+    if (chk) chk.checked = false;
+  });
+  deselectionnerPiece();
+
+  result.parts.forEach(p => {
+    const addon = addons[p.id];
+    if (!addon) return;
+    const chk = document.getElementById('chk-' + p.id);
+    const col = document.getElementById('col-' + p.id);
+    if (chk) chk.checked = true;
+    if (col) col.value = p.color;
+    addon.pivot.position.set(p.position.x, p.position.y, p.position.z);
+    addon.pivot.rotation.set(p.rotation.x, p.rotation.y, p.rotation.z);
+    addon.scaleMul = p.scale;
+    addon.colle = p.colle;
+    addon.basePosition.copy(addon.pivot.position);
+    addon.baseRotation.copy(addon.pivot.rotation);
+  });
+
+  Object.entries(result.materialColors || {}).forEach(([zone, hex]) => {
+    const el = document.getElementById('col-' + zone);
+    if (el) el.value = hex;
+  });
+
+  appliquerCouleursCarrosserie();
+  rafraichirAddons();
+  return result;
+}
+
+window.AssembleurAPI = {
+  isReady: () => !!(catalogData && bikeModel),
+  getCatalog: () => catalogData ? AssemblerEngine.getCatalog(catalogData) : null,
+  getRawCatalog: () => catalogData,
+  getBounds: () => boundsToPlain(),
+  validate: (config) => {
+    if (!catalogData) return { success: false, errors: ['Catalogue non chargé'] };
+    return AssemblerEngine.validateConfig(config, catalogData);
+  },
+  assemble: (config) => appliquerAssemblageIA(config),
+  exportGlb: () => exporterGlbPromise(),
+  exemple: () => ({
+    base: 'bike_base',
+    parts: [
+      { object: 'spoiler', socket: 'rearCenter' },
+      { object: 'aileronG', socket: 'leftSideRear', color: 'cyan' },
+      { object: 'aileronD', socket: 'rightSideRear', color: 'cyan' },
+      { object: 'liseret', socket: 'neonSide', color: 'cyan' },
+      { object: 'antenne', socket: 'antennaRear', color: 'magenta' }
+    ],
+    materials: { rouge: 'black', blanc: 'white', noir: 'black', chrome: 'chrome' }
+  })
+};
+
+console.info('AssembleurAPI disponible — ex: AssembleurAPI.assemble(AssembleurAPI.exemple())');
 
 // ---------------------------------------------------------------------
 // Boucle de rendu

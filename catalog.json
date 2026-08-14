@@ -1,0 +1,586 @@
+{
+  "version": 1,
+  "colors": {
+    "cyan": "#00d9ff",
+    "magenta": "#ff00aa",
+    "orange": "#ff8800",
+    "lime": "#aaff00",
+    "violet": "#8844ff",
+    "red": "#cc2222",
+    "white": "#f0f0f0",
+    "black": "#1a1a1a",
+    "chrome": "#888899",
+    "dark": "#161b22",
+    "grey": "#444c5a"
+  },
+  "materialZones": ["rouge", "blanc", "noir", "chrome"],
+  "bases": {
+    "bike_base": {
+      "id": "bike_base",
+      "name": "Moto standard",
+      "type": "motorcycle",
+      "sockets": {
+        "front": {
+          "id": "front",
+          "anchor": { "x": 0.92, "y": 0.55, "z": 0.5 },
+          "rotation": [0, 0, -0.3],
+          "tags": ["front", "aero"]
+        },
+        "cockpit": {
+          "id": "cockpit",
+          "anchor": { "x": 0.88, "y": 0.72, "z": 0.5 },
+          "rotation": [0, 0, -0.35],
+          "tags": ["front", "cockpit", "windscreen"]
+        },
+        "rearCenter": {
+          "id": "rearCenter",
+          "anchor": { "x": 0.06, "y": 0.62, "z": 0.5 },
+          "rotation": [0, 0, 0],
+          "tags": ["rear", "spoiler", "engine"]
+        },
+        "leftSide": {
+          "id": "leftSide",
+          "anchor": { "x": 0.45, "y": 0.5, "z": 0.02 },
+          "rotation": [0, 0.15, 0],
+          "tags": ["side", "wing", "fairing"]
+        },
+        "rightSide": {
+          "id": "rightSide",
+          "anchor": { "x": 0.45, "y": 0.5, "z": 0.98 },
+          "rotation": [0, -0.15, 0],
+          "tags": ["side", "wing", "fairing"]
+        },
+        "leftSideRear": {
+          "id": "leftSideRear",
+          "anchor": { "x": 0.28, "y": 0.55, "z": 0.02 },
+          "rotation": [0, 0.5, 0.25],
+          "tags": ["side", "wing", "rear"]
+        },
+        "rightSideRear": {
+          "id": "rightSideRear",
+          "anchor": { "x": 0.28, "y": 0.55, "z": 0.98 },
+          "rotation": [0, -0.5, 0.25],
+          "tags": ["side", "wing", "rear"]
+        },
+        "frontFender": {
+          "id": "frontFender",
+          "anchor": { "x": 0.95, "y": 0.18, "z": 0.5 },
+          "rotation": [-0.2, 0, 0],
+          "tags": ["front", "fender"]
+        },
+        "rearFender": {
+          "id": "rearFender",
+          "anchor": { "x": 0.15, "y": 0.2, "z": 0.5 },
+          "rotation": [0.15, 0, 0],
+          "tags": ["rear", "fender"]
+        },
+        "leftBag": {
+          "id": "leftBag",
+          "anchor": { "x": 0.4, "y": 0.38, "z": 0.05 },
+          "rotation": [0, 0, 0],
+          "tags": ["side", "storage", "bag"]
+        },
+        "rightBag": {
+          "id": "rightBag",
+          "anchor": { "x": 0.4, "y": 0.38, "z": 0.95 },
+          "rotation": [0, 0, 0],
+          "tags": ["side", "storage", "bag"]
+        },
+        "topRear": {
+          "id": "topRear",
+          "anchor": { "x": 0.12, "y": 0.7, "z": 0.5 },
+          "rotation": [0, 0, 0],
+          "tags": ["rear", "top", "storage"]
+        },
+        "underEngine": {
+          "id": "underEngine",
+          "anchor": { "x": 0.5, "y": 0.25, "z": 0.5 },
+          "rotation": [0, 0, 0],
+          "tags": ["engine", "protection", "underside"]
+        },
+        "exhaustRight": {
+          "id": "exhaustRight",
+          "anchor": { "x": 0.2, "y": 0.22, "z": 0.88 },
+          "rotation": [0, 0, 1.57],
+          "tags": ["rear", "engine", "exhaust"]
+        },
+        "radiatorFront": {
+          "id": "radiatorFront",
+          "anchor": { "x": 0.85, "y": 0.42, "z": 0.5 },
+          "rotation": [0, 0, 0],
+          "tags": ["front", "engine", "radiator"]
+        },
+        "antennaRear": {
+          "id": "antennaRear",
+          "anchor": { "x": 0.1, "y": 0.85, "z": 0.5 },
+          "rotation": [0, 0, 0],
+          "tags": ["rear", "antenna", "light"]
+        },
+        "neonSide": {
+          "id": "neonSide",
+          "anchor": { "x": 0.5, "y": 0.32, "z": 0.48 },
+          "rotation": [0, 0, 0],
+          "tags": ["side", "neon", "light"]
+        },
+        "neonRear": {
+          "id": "neonRear",
+          "anchor": { "x": 0.05, "y": 0.45, "z": 0.5 },
+          "rotation": [0, 0, 0],
+          "tags": ["rear", "neon", "light"]
+        },
+        "headlight": {
+          "id": "headlight",
+          "anchor": { "x": 0.98, "y": 0.58, "z": 0.5 },
+          "rotation": [0, 1.57, 0],
+          "tags": ["front", "light"]
+        },
+        "drlLeft": {
+          "id": "drlLeft",
+          "anchor": { "x": 0.92, "y": 0.52, "z": 0.25 },
+          "rotation": [0, 0, 0],
+          "tags": ["front", "light", "left"]
+        },
+        "drlRight": {
+          "id": "drlRight",
+          "anchor": { "x": 0.92, "y": 0.52, "z": 0.75 },
+          "rotation": [0, 0, 0],
+          "tags": ["front", "light", "right"]
+        },
+        "mirrorLeft": {
+          "id": "mirrorLeft",
+          "anchor": { "x": 0.85, "y": 0.78, "z": 0.08 },
+          "rotation": [0, 0.3, 0],
+          "tags": ["front", "mirror", "left"]
+        },
+        "mirrorRight": {
+          "id": "mirrorRight",
+          "anchor": { "x": 0.85, "y": 0.78, "z": 0.92 },
+          "rotation": [0, -0.3, 0],
+          "tags": ["front", "mirror", "right"]
+        },
+        "handleLeft": {
+          "id": "handleLeft",
+          "anchor": { "x": 0.8, "y": 0.72, "z": 0.3 },
+          "rotation": [0, 0, 1.57],
+          "tags": ["cockpit", "handle", "left"]
+        },
+        "handleRight": {
+          "id": "handleRight",
+          "anchor": { "x": 0.8, "y": 0.72, "z": 0.7 },
+          "rotation": [0, 0, 1.57],
+          "tags": ["cockpit", "handle", "right"]
+        },
+        "plateRear": {
+          "id": "plateRear",
+          "anchor": { "x": 0.08, "y": 0.35, "z": 0.5 },
+          "rotation": [0, 0, 0],
+          "tags": ["rear", "plate"]
+        },
+        "deflectorLeft": {
+          "id": "deflectorLeft",
+          "anchor": { "x": 0.8, "y": 0.65, "z": 0.15 },
+          "rotation": [0, 0.4, 0],
+          "tags": ["front", "aero", "left"]
+        },
+        "deflectorRight": {
+          "id": "deflectorRight",
+          "anchor": { "x": 0.8, "y": 0.65, "z": 0.85 },
+          "rotation": [0, -0.4, 0],
+          "tags": ["front", "aero", "right"]
+        },
+        "turnLeft": {
+          "id": "turnLeft",
+          "anchor": { "x": 0.75, "y": 0.6, "z": 0.08 },
+          "rotation": [0, 0, 0],
+          "tags": ["front", "light", "turn", "left"]
+        },
+        "turnRight": {
+          "id": "turnRight",
+          "anchor": { "x": 0.75, "y": 0.6, "z": 0.92 },
+          "rotation": [0, 0, 0],
+          "tags": ["front", "light", "turn", "right"]
+        },
+        "chainGuard": {
+          "id": "chainGuard",
+          "anchor": { "x": 0.5, "y": 0.15, "z": 0.35 },
+          "rotation": [0, 0, 0],
+          "tags": ["underside", "engine", "chain"]
+        }
+      }
+    }
+  },
+  "parts": {
+    "aileronG": {
+      "id": "aileronG",
+      "name": "Aileron gauche",
+      "section": "aero",
+      "compatibleTags": ["side", "wing", "rear"],
+      "defaultSocket": "leftSideRear",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.15, 0.15], "y": [-0.1, 0.2], "z": [-0.1, 0.1] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "cyan",
+      "emissive": false
+    },
+    "aileronD": {
+      "id": "aileronD",
+      "name": "Aileron droit",
+      "section": "aero",
+      "compatibleTags": ["side", "wing", "rear"],
+      "defaultSocket": "rightSideRear",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.15, 0.15], "y": [-0.1, 0.2], "z": [-0.1, 0.1] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "cyan",
+      "emissive": false
+    },
+    "spoiler": {
+      "id": "spoiler",
+      "name": "Spoiler arrière",
+      "section": "aero",
+      "compatibleTags": ["rear", "spoiler", "aero"],
+      "defaultSocket": "rearCenter",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.2, 0.2], "y": [-0.05, 0.15], "z": [-0.3, 0.3] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "becquet": {
+      "id": "becquet",
+      "name": "Becquet avant",
+      "section": "aero",
+      "compatibleTags": ["front", "aero"],
+      "defaultSocket": "front",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.1, 0.1], "y": [-0.1, 0.15], "z": [-0.1, 0.1] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "aileLatG": {
+      "id": "aileLatG",
+      "name": "Aile latérale G",
+      "section": "aero",
+      "compatibleTags": ["side", "wing", "fairing"],
+      "defaultSocket": "leftSide",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.2, 0.2], "y": [-0.15, 0.15], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "red",
+      "emissive": false
+    },
+    "aileLatD": {
+      "id": "aileLatD",
+      "name": "Aile latérale D",
+      "section": "aero",
+      "compatibleTags": ["side", "wing", "fairing"],
+      "defaultSocket": "rightSide",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.2, 0.2], "y": [-0.15, 0.15], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "red",
+      "emissive": false
+    },
+    "pareBrise": {
+      "id": "pareBrise",
+      "name": "Pare-brise",
+      "section": "aero",
+      "compatibleTags": ["front", "cockpit", "windscreen"],
+      "defaultSocket": "cockpit",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.1, 0.1], "y": [-0.1, 0.2], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "deflecteurG": {
+      "id": "deflecteurG",
+      "name": "Déflecteur G",
+      "section": "aero",
+      "compatibleTags": ["front", "aero", "left"],
+      "defaultSocket": "deflectorLeft",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.1, 0.1], "y": [-0.1, 0.1], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "deflecteurD": {
+      "id": "deflecteurD",
+      "name": "Déflecteur D",
+      "section": "aero",
+      "compatibleTags": ["front", "aero", "right"],
+      "defaultSocket": "deflectorRight",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.1, 0.1], "y": [-0.1, 0.1], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "gardeBoueAv": {
+      "id": "gardeBoueAv",
+      "name": "Garde-boue avant",
+      "section": "carrosserie",
+      "compatibleTags": ["front", "fender"],
+      "defaultSocket": "frontFender",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.15, 0.15], "y": [-0.05, 0.1], "z": [-0.2, 0.2] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "gardeBoueAr": {
+      "id": "gardeBoueAr",
+      "name": "Garde-boue arrière",
+      "section": "carrosserie",
+      "compatibleTags": ["rear", "fender"],
+      "defaultSocket": "rearFender",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.15, 0.15], "y": [-0.05, 0.1], "z": [-0.2, 0.2] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "sacocheG": {
+      "id": "sacocheG",
+      "name": "Sacoche G",
+      "section": "carrosserie",
+      "compatibleTags": ["side", "storage", "bag"],
+      "defaultSocket": "leftBag",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.15, 0.15], "y": [-0.1, 0.15], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "sacocheD": {
+      "id": "sacocheD",
+      "name": "Sacoche D",
+      "section": "carrosserie",
+      "compatibleTags": ["side", "storage", "bag"],
+      "defaultSocket": "rightBag",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.15, 0.15], "y": [-0.1, 0.15], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "topCase": {
+      "id": "topCase",
+      "name": "Top-case",
+      "section": "carrosserie",
+      "compatibleTags": ["rear", "top", "storage"],
+      "defaultSocket": "topRear",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.15, 0.15], "y": [-0.1, 0.15], "z": [-0.15, 0.15] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "protegeMoteur": {
+      "id": "protegeMoteur",
+      "name": "Protection moteur",
+      "section": "carrosserie",
+      "compatibleTags": ["engine", "protection", "underside"],
+      "defaultSocket": "underEngine",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.2, 0.2], "y": [-0.05, 0.1], "z": [-0.25, 0.25] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "grey",
+      "emissive": false
+    },
+    "potEchappement": {
+      "id": "potEchappement",
+      "name": "Pot d'échappement",
+      "section": "mecanique",
+      "compatibleTags": ["rear", "engine", "exhaust"],
+      "defaultSocket": "exhaustRight",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.2, 0.2], "y": [-0.05, 0.1], "z": [-0.1, 0.1] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "chrome",
+      "emissive": false
+    },
+    "protectionChaine": {
+      "id": "protectionChaine",
+      "name": "Protection chaîne",
+      "section": "mecanique",
+      "compatibleTags": ["underside", "engine", "chain"],
+      "defaultSocket": "chainGuard",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.15, 0.15], "y": [-0.03, 0.05], "z": [-0.1, 0.1] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "radiateur": {
+      "id": "radiateur",
+      "name": "Grille radiateur",
+      "section": "mecanique",
+      "compatibleTags": ["front", "engine", "radiator"],
+      "defaultSocket": "radiatorFront",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.1, 0.1], "y": [-0.1, 0.1], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "antenne": {
+      "id": "antenne",
+      "name": "Antenne",
+      "section": "eclairage",
+      "compatibleTags": ["rear", "antenna", "light"],
+      "defaultSocket": "antennaRear",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.1, 0.1], "y": [-0.1, 0.2], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "cyan",
+      "emissive": true
+    },
+    "liseret": {
+      "id": "liseret",
+      "name": "Liseret néon flanc",
+      "section": "eclairage",
+      "compatibleTags": ["side", "neon", "light"],
+      "defaultSocket": "neonSide",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.3, 0.3], "y": [-0.05, 0.05], "z": [-0.02, 0.02] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "cyan",
+      "emissive": true
+    },
+    "liseretAr": {
+      "id": "liseretAr",
+      "name": "Liseret néon arrière",
+      "section": "eclairage",
+      "compatibleTags": ["rear", "neon", "light"],
+      "defaultSocket": "neonRear",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.05, 0.05], "y": [-0.05, 0.05], "z": [-0.25, 0.25] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "magenta",
+      "emissive": true
+    },
+    "phareLed": {
+      "id": "phareLed",
+      "name": "Anneau phare LED",
+      "section": "eclairage",
+      "compatibleTags": ["front", "light"],
+      "defaultSocket": "headlight",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.05, 0.05], "y": [-0.05, 0.05], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "white",
+      "emissive": true
+    },
+    "feuxJourG": {
+      "id": "feuxJourG",
+      "name": "Feu de jour G",
+      "section": "eclairage",
+      "compatibleTags": ["front", "light", "left"],
+      "defaultSocket": "drlLeft",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.08, 0.08], "y": [-0.05, 0.05], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "lime",
+      "emissive": true
+    },
+    "feuxJourD": {
+      "id": "feuxJourD",
+      "name": "Feu de jour D",
+      "section": "eclairage",
+      "compatibleTags": ["front", "light", "right"],
+      "defaultSocket": "drlRight",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.08, 0.08], "y": [-0.05, 0.05], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "lime",
+      "emissive": true
+    },
+    "clignotantG": {
+      "id": "clignotantG",
+      "name": "Clignotant G",
+      "section": "eclairage",
+      "compatibleTags": ["front", "light", "turn", "left"],
+      "defaultSocket": "turnLeft",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.08, 0.08], "y": [-0.05, 0.05], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "orange",
+      "emissive": true
+    },
+    "clignotantD": {
+      "id": "clignotantD",
+      "name": "Clignotant D",
+      "section": "eclairage",
+      "compatibleTags": ["front", "light", "turn", "right"],
+      "defaultSocket": "turnRight",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.08, 0.08], "y": [-0.05, 0.05], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "orange",
+      "emissive": true
+    },
+    "retroG": {
+      "id": "retroG",
+      "name": "Rétroviseur G",
+      "section": "details",
+      "compatibleTags": ["front", "mirror", "left"],
+      "defaultSocket": "mirrorLeft",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.08, 0.08], "y": [-0.05, 0.1], "z": [-0.03, 0.03] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "retroD": {
+      "id": "retroD",
+      "name": "Rétroviseur D",
+      "section": "details",
+      "compatibleTags": ["front", "mirror", "right"],
+      "defaultSocket": "mirrorRight",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.08, 0.08], "y": [-0.05, 0.1], "z": [-0.03, 0.03] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "dark",
+      "emissive": false
+    },
+    "poigneeG": {
+      "id": "poigneeG",
+      "name": "Poignée G",
+      "section": "details",
+      "compatibleTags": ["cockpit", "handle", "left"],
+      "defaultSocket": "handleLeft",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.08, 0.08], "y": [-0.05, 0.05], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "cyan",
+      "emissive": false
+    },
+    "poigneeD": {
+      "id": "poigneeD",
+      "name": "Poignée D",
+      "section": "details",
+      "compatibleTags": ["cockpit", "handle", "right"],
+      "defaultSocket": "handleRight",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.08, 0.08], "y": [-0.05, 0.05], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "cyan",
+      "emissive": false
+    },
+    "plaque": {
+      "id": "plaque",
+      "name": "Support plaque",
+      "section": "details",
+      "compatibleTags": ["rear", "plate"],
+      "defaultSocket": "plateRear",
+      "mountPoint": { "position": [0, 0, 0], "rotation": [0, 0, 0] },
+      "allowedOffset": { "x": [-0.1, 0.1], "y": [-0.05, 0.1], "z": [-0.05, 0.05] },
+      "allowedScale": [0.5, 1.8],
+      "defaultColor": "white",
+      "emissive": false
+    }
+  }
+}
