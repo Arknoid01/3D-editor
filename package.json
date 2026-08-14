@@ -3,7 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "export-glb": "node tools/export-glb.mjs"
+    "export-glb": "node tools/export-glb.mjs",
+    "test": "node tools/ci-test.mjs",
+    "test:visual": "node tools/visual-test.mjs",
+    "verify-glb": "node tools/verify-glb.mjs"
   },
   "dependencies": {
     "puppeteer": "^24.9.0"

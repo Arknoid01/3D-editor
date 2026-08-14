@@ -62,6 +62,39 @@ def tags_compatible(socket_tags, part_tags):
     return any(t in socket_tags for t in part_tags)
 
 
+def derive_part_size_class(part):
+    if part.get("sizeClass") is not None:
+        return part["sizeClass"]
+    section = part.get("section", "")
+    pid = part.get("id", "")
+    if section == "ailes":
+        return 4
+    if section == "formes":
+        if any(x in pid for x in ("Xl", "Delta", "Pyramide", "Biplan", "Albatros", "Aigle", "ChauveSouris")):
+            return 5
+        return 3
+    if section in ("eclairage", "details"):
+        return 2
+    return 3
+
+
+def derive_socket_max_size_class(socket):
+    if socket.get("maxSizeClass") is not None:
+        return socket["maxSizeClass"]
+    tags = socket.get("tags", [])
+    if any(t in tags for t in ("headlight", "antenna", "mirror", "turnsignal")):
+        return 2
+    if "wing" in tags and "top" in tags:
+        return 4
+    if "wing" in tags:
+        return 5
+    if "deco" in tags and "free" in tags:
+        return 5
+    if "neon" in tags:
+        return 2
+    return 4
+
+
 def validate_config(config, catalog):
     errors = []
     warnings = []
@@ -99,6 +132,19 @@ def validate_config(config, catalog):
         s_min, s_max = part["allowedScale"]
         if not (s_min <= scale <= s_max):
             errors.append(f"{part_id}: scale={scale} hors plage [{s_min}, {s_max}]")
+
+        part_size = derive_part_size_class(part) * scale
+        socket_max = derive_socket_max_size_class(socket)
+        if part_size > socket_max + 0.25:
+            warnings.append({
+                "type": "size_mismatch",
+                "part": part_id,
+                "socket": socket_id,
+                "message": f"{part.get('name', part_id)} trop grande pour le socket {socket_id} "
+                f"(taille {part_size:.1f} > max {socket_max})",
+                "effectiveSize": round(part_size, 1),
+                "maxSize": socket_max,
+            })
 
         offset = entry.get("offset") or {}
         for axis in ("x", "y", "z"):

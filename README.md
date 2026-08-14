@@ -110,6 +110,27 @@ curl -X POST http://localhost:8765/api/export-glb \
 
 Flags WebGL utilisés par Puppeteer : `--enable-unsafe-swiftshader`, `--use-gl=angle`, `--use-angle=swiftshader-webgl`.
 
+## CI (GitHub Actions)
+
+À chaque push/PR sur `main` :
+
+- validation de **tous les presets** (`/api/validate` + `AssemblerEngine`)
+- export GLB preset **ailes** + vérif `trail_anchor` + `assembleurConfig`
+- **screenshot Puppeteer** (artefact CI)
+
+Lancer localement :
+
+```bash
+npm install
+npm test
+```
+
+Artefacts générés : `exports/ci-moto-ailes.glb`, `artifacts/screenshots/preset_ailes.png`
+
+## Validation enrichie
+
+Le moteur émet des warnings `size_mismatch` quand une pièce est trop grande pour son socket (ex. aile XL sur socket phare). Basé sur `sizeClass` pièce × `scale` vs `maxSizeClass` socket (dérivés automatiquement depuis section/tags si non définis dans `catalog.json`).
+
 ## Principe sockets / mounts
 
 ```

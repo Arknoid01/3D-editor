@@ -95,6 +95,29 @@
     };
   }
 
+  function derivePartSizeClass(part) {
+    if (part.sizeClass != null) return part.sizeClass;
+    if (part.section === 'ailes') return 4;
+    if (part.section === 'formes') {
+      if (/Xl|Delta|Pyramide|Biplan|Albatros|Aigle|ChauveSouris/i.test(part.id)) return 5;
+      return 3;
+    }
+    if (part.section === 'eclairage') return 2;
+    if (part.section === 'details') return 2;
+    return 3;
+  }
+
+  function deriveSocketMaxSizeClass(socket) {
+    if (socket.maxSizeClass != null) return socket.maxSizeClass;
+    const tags = socket.tags || [];
+    if (tags.some(t => ['headlight', 'antenna', 'mirror', 'turnsignal'].includes(t))) return 2;
+    if (tags.includes('wing') && tags.includes('top')) return 4;
+    if (tags.includes('wing')) return 5;
+    if (tags.includes('deco') && tags.includes('free')) return 5;
+    if (tags.includes('neon')) return 2;
+    return 4;
+  }
+
   function validateConfig(config, catalog) {
     const errors = [];
     const warnings = [];
@@ -140,6 +163,19 @@
       const [sMin, sMax] = part.allowedScale;
       if (!dansPlage(scale, sMin, sMax)) {
         errors.push(`${partId}: scale=${scale} hors plage [${sMin}, ${sMax}]`);
+      }
+
+      const partSize = derivePartSizeClass(part) * scale;
+      const socketMax = deriveSocketMaxSizeClass(socket);
+      if (partSize > socketMax + 0.25) {
+        warnings.push({
+          type: 'size_mismatch',
+          part: partId,
+          socket: socketId,
+          message: `${part.name || partId} trop grande pour le socket ${socketId} (taille ${partSize.toFixed(1)} > max ${socketMax})`,
+          effectiveSize: Math.round(partSize * 10) / 10,
+          maxSize: socketMax,
+        });
       }
 
       if (entry.color && !catalog.colors[entry.color]) {
@@ -223,6 +259,8 @@
     computePlacement,
     socketPosition,
     tagsCompatibles,
-    resolveColor
+    resolveColor,
+    derivePartSizeClass,
+    deriveSocketMaxSizeClass,
   };
 });
